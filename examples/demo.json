@@ -1,0 +1,327 @@
+{
+  "repo0": {
+    "repo": "fictional-sample-app",
+    "displayName": "Sample app (fictional)",
+    "originUrl": "",
+    "baseBranch": "main",
+    "nodes": [
+      {
+        "id": "aeb4630366b92feab23533eb407c10330b8a71f6",
+        "msg": "Initial sample app",
+        "date": "2000-01-01",
+        "clock": "09:00",
+        "parents": []
+      },
+      {
+        "id": "771decf60a3c16559e704f1346bebf35818e7768",
+        "msg": "Create application shell",
+        "date": "2000-01-01",
+        "clock": "09:30",
+        "parents": [
+          {
+            "id": "aeb4630366b92feab23533eb407c10330b8a71f6",
+            "direct": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "8b6080fab4f6d1c5795c0a8a0789fd26d4c3550a",
+        "msg": "Add reusable page layout",
+        "date": "2000-01-01",
+        "clock": "10:00",
+        "parents": [
+          {
+            "id": "771decf60a3c16559e704f1346bebf35818e7768",
+            "direct": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "65c045025ae56432a67f65f2235534e9e39076ba",
+        "msg": "Build search index",
+        "date": "2000-01-02",
+        "clock": "09:00",
+        "parents": [
+          {
+            "id": "8b6080fab4f6d1c5795c0a8a0789fd26d4c3550a",
+            "direct": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "ced3c0ffd132a6951d4bd0d88357cd0435fd74ba",
+        "msg": "Write installation guide",
+        "date": "2000-01-02",
+        "clock": "09:15",
+        "parents": [
+          {
+            "id": "8b6080fab4f6d1c5795c0a8a0789fd26d4c3550a",
+            "direct": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "aae18f92cd4cbdeb762e80bb17144cefd86b43d7",
+        "msg": "Define dark theme palette",
+        "date": "2000-01-02",
+        "clock": "09:30",
+        "parents": [
+          {
+            "id": "8b6080fab4f6d1c5795c0a8a0789fd26d4c3550a",
+            "direct": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "79dc7964515f97025a9cca604671dbb8ed45159a",
+        "msg": "Improve navigation links",
+        "date": "2000-01-02",
+        "clock": "10:00",
+        "parents": [
+          {
+            "id": "8b6080fab4f6d1c5795c0a8a0789fd26d4c3550a",
+            "direct": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "d8a5597f82cc567da28fe9c6677e0243737e8d6e",
+        "msg": "Add query suggestions",
+        "date": "2000-01-02",
+        "clock": "11:00",
+        "parents": [
+          {
+            "id": "65c045025ae56432a67f65f2235534e9e39076ba",
+            "direct": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "06d12d439a13aa41277a0266e3fe64a24d2db6bb",
+        "msg": "Add quick-start examples",
+        "date": "2000-01-02",
+        "clock": "11:30",
+        "parents": [
+          {
+            "id": "ced3c0ffd132a6951d4bd0d88357cd0435fd74ba",
+            "direct": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "1671dce75834ed0326229240a44683fb7ca014c2",
+        "msg": "Merge docs/quick-start",
+        "date": "2000-01-02",
+        "clock": "12:00",
+        "parents": [
+          {
+            "id": "79dc7964515f97025a9cca604671dbb8ed45159a",
+            "direct": true,
+            "verified": true
+          },
+          {
+            "id": "06d12d439a13aa41277a0266e3fe64a24d2db6bb",
+            "direct": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "9ec4561fcd82b1c27546be028d18d60aff3423ec",
+        "msg": "Improve colour contrast",
+        "date": "2000-01-03",
+        "clock": "09:00",
+        "parents": [
+          {
+            "id": "aae18f92cd4cbdeb762e80bb17144cefd86b43d7",
+            "direct": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "3330514413c4923beb239e090c8fe80b5d445ac4",
+        "msg": "Add search keyboard controls",
+        "date": "2000-01-03",
+        "clock": "09:30",
+        "parents": [
+          {
+            "id": "d8a5597f82cc567da28fe9c6677e0243737e8d6e",
+            "direct": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "8e7b52fe16de3cf679b5ac8fb5440d33cc462ca5",
+        "msg": "Merge feature/search",
+        "date": "2000-01-03",
+        "clock": "10:00",
+        "parents": [
+          {
+            "id": "1671dce75834ed0326229240a44683fb7ca014c2",
+            "direct": true,
+            "verified": true
+          },
+          {
+            "id": "3330514413c4923beb239e090c8fe80b5d445ac4",
+            "direct": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "4da5e7afc3febcb5b639c370982a58acfbbcf95b",
+        "msg": "Create standalone SVG output",
+        "date": "2000-01-03",
+        "clock": "11:00",
+        "parents": [
+          {
+            "id": "8e7b52fe16de3cf679b5ac8fb5440d33cc462ca5",
+            "direct": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "f7e9741d75ca79b13cfcf42000bb3880a38c7a13",
+        "msg": "Include labels in exported SVG",
+        "date": "2000-01-03",
+        "clock": "11:30",
+        "parents": [
+          {
+            "id": "4da5e7afc3febcb5b639c370982a58acfbbcf95b",
+            "direct": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "26c2923a1129187d8d182511639cdf260ec85c05",
+        "msg": "Merge feature/dark-mode",
+        "date": "2000-01-03",
+        "clock": "12:00",
+        "parents": [
+          {
+            "id": "8e7b52fe16de3cf679b5ac8fb5440d33cc462ca5",
+            "direct": true,
+            "verified": true
+          },
+          {
+            "id": "9ec4561fcd82b1c27546be028d18d60aff3423ec",
+            "direct": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "804e256e6a178e95d2e50cc4fe97089ed468e70f",
+        "msg": "Handle arrow-key navigation",
+        "date": "2000-01-04",
+        "clock": "09:00",
+        "parents": [
+          {
+            "id": "26c2923a1129187d8d182511639cdf260ec85c05",
+            "direct": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "f3624202247213c794bb5b6eba1f7fef44b46e92",
+        "msg": "Check sample app interactions",
+        "date": "2000-01-04",
+        "clock": "09:30",
+        "parents": [
+          {
+            "id": "26c2923a1129187d8d182511639cdf260ec85c05",
+            "direct": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "50fef10362b4d9c9a3dc2c5f1924074766ee339d",
+        "msg": "Keep focus visible after search",
+        "date": "2000-01-04",
+        "clock": "10:00",
+        "parents": [
+          {
+            "id": "804e256e6a178e95d2e50cc4fe97089ed468e70f",
+            "direct": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "7ff9698bb4482ddbab7ac4e1120f4a5ab357215f",
+        "msg": "Polish vector export spacing",
+        "date": "2000-01-04",
+        "clock": "10:30",
+        "parents": [
+          {
+            "id": "f7e9741d75ca79b13cfcf42000bb3880a38c7a13",
+            "direct": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "2b6f375246cc53a2af50edaab69b66ec43626ac4",
+        "msg": "Cover keyboard edge cases",
+        "date": "2000-01-04",
+        "clock": "11:00",
+        "parents": [
+          {
+            "id": "50fef10362b4d9c9a3dc2c5f1924074766ee339d",
+            "direct": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "a5f1898031c70dd28912bd1afb43ab12c42099ff",
+        "msg": "Prepare sample release notes",
+        "date": "2000-01-04",
+        "clock": "11:30",
+        "parents": [
+          {
+            "id": "f3624202247213c794bb5b6eba1f7fef44b46e92",
+            "direct": true,
+            "verified": true
+          }
+        ]
+      },
+      {
+        "id": "79bf5d08e6062f8fc28e108b56122ac3aa15e197",
+        "msg": "Release sample app v1.0",
+        "date": "2000-01-05",
+        "clock": "09:00",
+        "parents": [
+          {
+            "id": "a5f1898031c70dd28912bd1afb43ab12c42099ff",
+            "direct": true,
+            "verified": true
+          }
+        ]
+      }
+    ],
+    "refs": {
+      "main": "79bf5d08e6062f8fc28e108b56122ac3aa15e197",
+      "feature/svg-export": "7ff9698bb4482ddbab7ac4e1120f4a5ab357215f",
+      "fix/keyboard-nav": "2b6f375246cc53a2af50edaab69b66ec43626ac4",
+      "feature/search": "3330514413c4923beb239e090c8fe80b5d445ac4",
+      "feature/dark-mode": "9ec4561fcd82b1c27546be028d18d60aff3423ec",
+      "docs/quick-start": "06d12d439a13aa41277a0266e3fe64a24d2db6bb"
+    },
+    "scope": "Entirely fictional demonstration. Names, identifiers, messages, dates and parent relationships were created for this example; no real repository or personal data is included."
+  }
+}

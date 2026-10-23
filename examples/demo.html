@@ -1,0 +1,354 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>diGITrail · Git Branch History</title><style>
+:root{color-scheme:dark;font-family:Inter,'Segoe UI',Arial,sans-serif;--bg:#0b1220;--panel:#111d30;--line:#263952;--text:#e7f0fa;--muted:#97abc4}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);height:100vh;display:flex;flex-direction:column;overflow:hidden}
+header{padding:10px 14px 8px;background:linear-gradient(90deg,#122238,#111a2a);border-bottom:1px solid var(--line)}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+h1{font-size:19px;margin:0 0 2px;letter-spacing:-.4px}.subtitle{font-size:12px;color:var(--muted);margin:0}
+.metadata{display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:#b8cae0;font-size:11px}.tag{border:1px solid #344c6b;background:#1a2b43;padding:4px 8px;border-radius:999px}
+.controls{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:8px}
+.tabs{display:flex;padding:2px;border-radius:8px;background:#0a1424;border:1px solid #34475d;gap:2px}
+button,select,input{font-family:inherit;font-size:12px;border:1px solid #30455f;border-radius:7px;padding:7px 9px;background:#16273d;color:#e6f0fc;outline:none}
+button{cursor:pointer}button:hover{background:#243d5c}button.chosen{background:#27639b;border-color:#4788bf;color:#fff}
+.tabs button{border:none;background:transparent;padding:7px 11px}.tabs button.chosen{background:#315d88}
+#find{min-width:180px;flex:1;max-width:260px}#filter-branch{max-width:220px}
+.status{display:flex;align-items:center;gap:11px;flex-wrap:wrap;padding:7px 14px;background:#0e192b;border-bottom:1px solid #263a54;font-size:11px}
+.stat{color:#a9bbd2}.stat b{font-size:14px;color:#e6effb}.status strong{font-size:12px}
+#layout{flex:1;display:flex;min-height:0;overflow:hidden}
+#viewport{flex:1;overflow:auto;min-width:0;background:#0a1321;scrollbar-color:#324b67 #0b1322}
+#graph{width:100%;min-width:100%}.graph-svg{display:block;max-width:none}
+.graph-svg .daytext{font-size:10px;fill:#7086a1}.graph-svg .meta{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11px;fill:#90a7bd}.graph-svg .message{font-family:Inter,'Segoe UI',Arial,sans-serif;font-size:13px;fill:#e7f0fc}
+.graph-svg .message.muted{fill:#8d9cb2}.graph-svg .branch-label{font-family:Inter,'Segoe UI',Arial,sans-serif;font-size:11px;fill:#eef2fd;font-weight:600}
+.graph-svg .meta{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11px;fill:#90a7bd}
+.graph-svg .headtxt{font-size:11px;font-weight:600;letter-spacing:.8px;fill:#aebcd1}
+.graph-svg .fold-text{font-family:ui-monospace,monospace;font-size:10px;fill:#bfd5ee}
+.graph-svg .commit-row{cursor:pointer;outline:none}.graph-svg .hover-bg{opacity:0}
+.graph-svg .commit-row:hover .hover-bg,.graph-svg .commit-row:focus .hover-bg{opacity:.52}
+.graph-svg .commit-row.focused .hover-bg{opacity:.65}.graph-svg .commit-row.matched .hover-bg{opacity:.8;fill:#2d7aba}
+.graph-svg .commit-row.dimmed{opacity:.20}.graph-svg .edge{stroke-linecap:round;stroke-linejoin:round;opacity:.83}
+.graph-svg .edge.compressed{opacity:.68}.graph-svg .fold-mark{pointer-events:none}
+#detail{width:300px;flex-shrink:0;background:#142137;border-left:1px solid #34445c;padding:14px 14px;overflow:auto}
+#detail[hidden]{display:none}#detail h2{font-size:15px;line-height:1.4;margin:10px 0;overflow-wrap:anywhere}
+#detail .small{color:#99b1ca;font-size:11px;margin:9px 0 4px}.parent-item{padding:7px;border-radius:7px;background:#1c2b42;font:12px ui-monospace,monospace;margin:6px 0;overflow-wrap:anywhere}
+#detail a[hidden]{display:none}#detail a{display:inline-block;color:#92cfff;border:1px solid #426a8e;border-radius:8px;padding:8px 10px;text-decoration:none;margin-top:14px}
+footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:7px 14px;color:#91a6bf;border-top:1px solid #23354d;font-size:11px;line-height:1.35}
+footer button{padding:4px 9px;font-size:11px}
+@media(max-width:780px){header{padding:8px 10px}h1{font-size:17px}.status{padding:6px 10px}footer{padding:7px 10px}#detail{position:absolute;right:0;top:130px;bottom:34px;width:min(87vw,300px);z-index:5;box-shadow:-12px 0 24px #0009}}
+</style></head><body>
+<header><div class="topline"><div><h1>diGITrail · Branch & Commit History</h1><p class="subtitle" id="order-description">Reverse chronological order · newest at top, oldest at bottom</p></div><div class="metadata"><span class="tag" id="order-tag">↓ Newest at top</span><span class="tag">Read-only</span></div></div>
+<div class="controls"><button id="flip-time" type="button" title="Reverse chronological order" aria-label="Reverse chronological order">⇅ Newest first</button><div class="tabs"><button data-repo="repo0" class="chosen">Sample app (fictional)</button></div><div class="tabs"><button data-mode="full">All commits</button><button data-mode="summary" class="chosen">Structure view</button></div><select id="filter-branch" aria-label="Highlight branch"><option value="">All branches</option></select><input type="search" id="find" placeholder="Search SHA, message, or branch…" aria-label="Search commits"/><span id="found" style="font-size:11px;color:#95c5f5"></span><button id="zoom-out" aria-label="Zoom out">−</button><span id="zoomv" style="font:11px monospace;color:#b9c9da">100%</span><button id="zoom-in" aria-label="Zoom in">+</button><button id="download-svg">Export SVG</button></div></header>
+<div class="status"><strong id="stat-title"></strong><span class="stat"><b id="total">…</b> nodes</span><span class="stat"><b id="merges">…</b> merges</span><span class="stat"><b id="countrefs">…</b> references</span><span class="stat"><b id="gaps">…</b> collapsed paths</span><span id="stat-subtitle" style="color:#87a8c7"></span></div>
+<div id="layout"><main id="viewport"><div id="graph"></div></main><aside id="detail" hidden><button id="close-detail">Close details ×</button><h2 id="detail-head"></h2><div class="small">SHA</div><div id="detail-sha" style="font-family:monospace;font-size:12px;word-break:break-all"></div><div class="small">Date (UTC when time is available)</div><div id="detail-date"></div><div class="small">Associated branches</div><div id="detail-branches"></div><div class="small">Parents or connected ancestors</div><div id="detail-parents"></div><a id="link-commit" target="_blank" rel="noopener noreferrer">View commit in repository ↗</a></aside></div>
+<footer><div id="legend">Links reflect real Git commit/parent relationships. Shared commits may have multiple branch names.</div><div style="display:flex;gap:6px"><button id="go-top" aria-label="Go to start of history">↑ Start</button><button id="go-latest" aria-label="Go to end of history">↓ End</button></div></footer>
+<script id="payload" type="application/json">{"repo0":{"repo":"fictional-sample-app","displayName":"Sample app (fictional)","originUrl":"","baseBranch":"main","nodes":[{"id":"aeb4630366b92feab23533eb407c10330b8a71f6","msg":"Initial sample app","date":"2000-01-01","clock":"09:00","parents":[]},{"id":"771decf60a3c16559e704f1346bebf35818e7768","msg":"Create application shell","date":"2000-01-01","clock":"09:30","parents":[{"direct":true,"verified":true,"id":"aeb4630366b92feab23533eb407c10330b8a71f6"}]},{"id":"8b6080fab4f6d1c5795c0a8a0789fd26d4c3550a","msg":"Add reusable page layout","date":"2000-01-01","clock":"10:00","parents":[{"direct":true,"verified":true,"id":"771decf60a3c16559e704f1346bebf35818e7768"}]},{"id":"65c045025ae56432a67f65f2235534e9e39076ba","msg":"Build search index","date":"2000-01-02","clock":"09:00","parents":[{"direct":true,"verified":true,"id":"8b6080fab4f6d1c5795c0a8a0789fd26d4c3550a"}]},{"id":"ced3c0ffd132a6951d4bd0d88357cd0435fd74ba","msg":"Write installation guide","date":"2000-01-02","clock":"09:15","parents":[{"direct":true,"verified":true,"id":"8b6080fab4f6d1c5795c0a8a0789fd26d4c3550a"}]},{"id":"aae18f92cd4cbdeb762e80bb17144cefd86b43d7","msg":"Define dark theme palette","date":"2000-01-02","clock":"09:30","parents":[{"direct":true,"verified":true,"id":"8b6080fab4f6d1c5795c0a8a0789fd26d4c3550a"}]},{"id":"79dc7964515f97025a9cca604671dbb8ed45159a","msg":"Improve navigation links","date":"2000-01-02","clock":"10:00","parents":[{"direct":true,"verified":true,"id":"8b6080fab4f6d1c5795c0a8a0789fd26d4c3550a"}]},{"id":"d8a5597f82cc567da28fe9c6677e0243737e8d6e","msg":"Add query suggestions","date":"2000-01-02","clock":"11:00","parents":[{"direct":true,"verified":true,"id":"65c045025ae56432a67f65f2235534e9e39076ba"}]},{"id":"06d12d439a13aa41277a0266e3fe64a24d2db6bb","msg":"Add quick-start examples","date":"2000-01-02","clock":"11:30","parents":[{"direct":true,"verified":true,"id":"ced3c0ffd132a6951d4bd0d88357cd0435fd74ba"}]},{"id":"1671dce75834ed0326229240a44683fb7ca014c2","msg":"Merge docs/quick-start","date":"2000-01-02","clock":"12:00","parents":[{"direct":true,"verified":true,"id":"79dc7964515f97025a9cca604671dbb8ed45159a"},{"direct":true,"verified":true,"id":"06d12d439a13aa41277a0266e3fe64a24d2db6bb"}]},{"id":"9ec4561fcd82b1c27546be028d18d60aff3423ec","msg":"Improve colour contrast","date":"2000-01-03","clock":"09:00","parents":[{"direct":true,"verified":true,"id":"aae18f92cd4cbdeb762e80bb17144cefd86b43d7"}]},{"id":"3330514413c4923beb239e090c8fe80b5d445ac4","msg":"Add search keyboard controls","date":"2000-01-03","clock":"09:30","parents":[{"direct":true,"verified":true,"id":"d8a5597f82cc567da28fe9c6677e0243737e8d6e"}]},{"id":"8e7b52fe16de3cf679b5ac8fb5440d33cc462ca5","msg":"Merge feature/search","date":"2000-01-03","clock":"10:00","parents":[{"direct":true,"verified":true,"id":"1671dce75834ed0326229240a44683fb7ca014c2"},{"direct":true,"verified":true,"id":"3330514413c4923beb239e090c8fe80b5d445ac4"}]},{"id":"4da5e7afc3febcb5b639c370982a58acfbbcf95b","msg":"Create standalone SVG output","date":"2000-01-03","clock":"11:00","parents":[{"direct":true,"verified":true,"id":"8e7b52fe16de3cf679b5ac8fb5440d33cc462ca5"}]},{"id":"f7e9741d75ca79b13cfcf42000bb3880a38c7a13","msg":"Include labels in exported SVG","date":"2000-01-03","clock":"11:30","parents":[{"direct":true,"verified":true,"id":"4da5e7afc3febcb5b639c370982a58acfbbcf95b"}]},{"id":"26c2923a1129187d8d182511639cdf260ec85c05","msg":"Merge feature/dark-mode","date":"2000-01-03","clock":"12:00","parents":[{"direct":true,"verified":true,"id":"8e7b52fe16de3cf679b5ac8fb5440d33cc462ca5"},{"direct":true,"verified":true,"id":"9ec4561fcd82b1c27546be028d18d60aff3423ec"}]},{"id":"804e256e6a178e95d2e50cc4fe97089ed468e70f","msg":"Handle arrow-key navigation","date":"2000-01-04","clock":"09:00","parents":[{"direct":true,"verified":true,"id":"26c2923a1129187d8d182511639cdf260ec85c05"}]},{"id":"f3624202247213c794bb5b6eba1f7fef44b46e92","msg":"Check sample app interactions","date":"2000-01-04","clock":"09:30","parents":[{"direct":true,"verified":true,"id":"26c2923a1129187d8d182511639cdf260ec85c05"}]},{"id":"50fef10362b4d9c9a3dc2c5f1924074766ee339d","msg":"Keep focus visible after search","date":"2000-01-04","clock":"10:00","parents":[{"direct":true,"verified":true,"id":"804e256e6a178e95d2e50cc4fe97089ed468e70f"}]},{"id":"7ff9698bb4482ddbab7ac4e1120f4a5ab357215f","msg":"Polish vector export spacing","date":"2000-01-04","clock":"10:30","parents":[{"direct":true,"verified":true,"id":"f7e9741d75ca79b13cfcf42000bb3880a38c7a13"}]},{"id":"2b6f375246cc53a2af50edaab69b66ec43626ac4","msg":"Cover keyboard edge cases","date":"2000-01-04","clock":"11:00","parents":[{"direct":true,"verified":true,"id":"50fef10362b4d9c9a3dc2c5f1924074766ee339d"}]},{"id":"a5f1898031c70dd28912bd1afb43ab12c42099ff","msg":"Prepare sample release notes","date":"2000-01-04","clock":"11:30","parents":[{"direct":true,"verified":true,"id":"f3624202247213c794bb5b6eba1f7fef44b46e92"}]},{"id":"79bf5d08e6062f8fc28e108b56122ac3aa15e197","msg":"Release sample app v1.0","date":"2000-01-05","clock":"09:00","parents":[{"direct":true,"verified":true,"id":"a5f1898031c70dd28912bd1afb43ab12c42099ff"}]}],"refs":{"main":"79bf5d08e6062f8fc28e108b56122ac3aa15e197","feature/svg-export":"7ff9698bb4482ddbab7ac4e1120f4a5ab357215f","fix/keyboard-nav":"2b6f375246cc53a2af50edaab69b66ec43626ac4","feature/search":"3330514413c4923beb239e090c8fe80b5d445ac4","feature/dark-mode":"9ec4561fcd82b1c27546be028d18d60aff3423ec","docs/quick-start":"06d12d439a13aa41277a0266e3fe64a24d2db6bb"},"scope":"Entirely fictional demonstration. Names, identifiers, messages, dates and parent relationships were created for this example; no real repository or personal data is included.","components":1}}</script><script>'use strict';
+const RAW = JSON.parse(document.getElementById('payload').textContent);
+const PALETTE=['#46d3b9','#f4ad54','#8aa6ff','#be8dff','#f279a6','#63c6ee','#f7c675','#8fdb84','#e89672','#e1a1cb','#67c9ad','#dca8f7','#d4e06e','#80c3fc'];
+const COLOR_BY_BRANCH={'main':'#4dd8b9'};
+let repo=Object.keys(RAW)[0], mode='summary', scale=1, selected=null, currentView=null, newestFirst=true;
+const $=x=>document.querySelector(x);
+const el=(tag,attrs={},children=[])=>{const n=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [k,v] of Object.entries(attrs))if(v!==undefined&&v!==null)n.setAttribute(k,String(v));for(const c of children)n.appendChild(c);return n;};
+const E=(name,attrs={})=>Object.assign(document.createElement(name),attrs);
+function textNode(x,y,content,cls,more={}){const t=el('text',{x,y,class:cls,...more});t.textContent=content;return t;}
+function prep(){
+ const d=RAW[repo],n=new Map(d.nodes.map(a=>[a.id,a]));
+ const children=new Map(d.nodes.map(a=>[a.id,new Set()]));
+ for(const x of d.nodes)for(const e of x.parents)if(children.has(e.id))children.get(e.id).add(x.id);
+ const refmap=new Map();for(const [name,id] of Object.entries(d.refs)){if(!refmap.has(id))refmap.set(id,[]);refmap.get(id).push(name);}
+ // The main column is the MAIN FIRST-PARENT chain, not every ancestor reached by a merge.
+ const mainFirstPath=new Set();let current=d.refs[d.baseBranch];
+ while(current&&n.has(current)&&!mainFirstPath.has(current)){mainFirstPath.add(current);current=n.get(current).parents[0]?.id;}
+ return {d,n,children,refmap,mainFirstPath};
+}
+function makeView(ctx){
+ const {d,n,children,refmap,mainFirstPath}=ctx,heads=new Set(Object.values(d.refs));
+ const keep=new Set();
+ for(const x of d.nodes){
+  const count=children.get(x.id)?.size||0;
+  if(mode==='full'||heads.has(x.id)||x.parents.length!==1||count!==1||x.boundary)keep.add(x.id);
+ }
+ const nodes=new Map();
+ for(const id of keep){
+  const obj=n.get(id),edges=[];
+  for(const orig of obj.parents){
+   let next=orig.id,collapsed=orig.direct?0:(orig.intermediate??1),depth=0;
+   while(n.has(next)&&!keep.has(next)){
+    const mid=n.get(next);if(mid.parents.length!==1)throw Error('Attempted to hide a branch point');
+    collapsed+=1+(mid.parents[0].direct?0:(mid.parents[0].intermediate??1));
+    next=mid.parents[0].id;
+    if(++depth>10000)throw Error('Cycle in Git ancestry chain');
+   }
+   if(!keep.has(next))throw Error('Incomplete ancestor '+next);
+   edges.push({id:next,collapsed,direct:collapsed===0});
+  }
+  nodes.set(id,{...obj,edges});
+ }
+ const laneById=new Map(),colorById=new Map();
+ const datePriority=x=>Number((x.date||'1900-01-01').replaceAll('-','')+(x.clock||'00:00').replace(':',''));
+ const colorFor=(id,lane,preferredName=null)=>{
+   if(preferredName&&COLOR_BY_BRANCH[preferredName])return COLOR_BY_BRANCH[preferredName];
+   const names=refmap.get(id)||[];for(const name of names)if(COLOR_BY_BRANCH[name])return COLOR_BY_BRANCH[name];
+   return PALETTE[lane%PALETTE.length];
+ };
+ let nextReservedLane=1;
+ const reserveWalk=(start,lane,refName)=>{
+   let cur=start; const seen=new Set();
+   while(nodes.has(cur)&&!seen.has(cur)){
+    seen.add(cur);
+    if(mainFirstPath.has(cur)&&cur!==start)break;
+    if(laneById.has(cur)&&laneById.get(cur)!==lane)break;
+    laneById.set(cur,lane); colorById.set(cur,colorFor(cur,lane,refName));
+    const node=nodes.get(cur);
+    if(node.edges.length!==1)break;
+    const nxt=node.edges[0].id;
+    if(laneById.has(nxt)&&laneById.get(nxt)!==lane)break;
+    cur=nxt;
+   }
+ };
+ let curMain=d.refs[d.baseBranch];
+ while(nodes.has(curMain)&&!laneById.has(curMain)){
+   laneById.set(curMain,0); colorById.set(curMain,COLOR_BY_BRANCH.main);
+   const node=nodes.get(curMain); if(!node.edges.length)break;
+   const mainEdge=node.edges.find(e=>mainFirstPath.has(e.id))||node.edges[0];
+   curMain=mainEdge.id;
+ }
+ const refEntries=Object.entries(d.refs)
+   .filter(([name,sha])=>name!==d.baseBranch&&nodes.has(sha))
+   .sort((a,b)=>datePriority(nodes.get(b[1]))-datePriority(nodes.get(a[1]))||a[0].localeCompare(b[0]));
+ for(const [name,sha] of refEntries){
+   if(laneById.has(sha)&&laneById.get(sha)!==0)continue;
+   reserveWalk(sha,nextReservedLane,name); nextReservedLane++;
+ }
+ const unresolved=new Map([...nodes].map(([id])=>[id,0]));
+ for(const x of nodes.values())for(const e of x.edges)unresolved.set(e.id,unresolved.get(e.id)+1);
+ let ready=[...nodes.values()].filter(x=>unresolved.get(x.id)===0);
+ const active=[]; active[0]={want:d.refs[d.baseBranch],color:COLOR_BY_BRANCH.main};
+ for(const [name,sha] of refEntries){ const lane=laneById.get(sha); if(lane!==undefined&&!active[lane]) active[lane]={want:sha,color:colorById.get(sha)||colorFor(sha,lane,name)}; }
+ while(ready.length){
+  const expected=new Set(active.filter(Boolean).map(x=>x.want));
+  ready.sort((a,b)=>{
+   const fixedA=laneById.has(a.id)?1:0, fixedB=laneById.has(b.id)?1:0;
+   const pA=(mainFirstPath.has(a.id)?6:0)+(fixedA?3:0)+(expected.has(a.id)?2:0)+(heads.has(a.id)?1:0);
+   const pB=(mainFirstPath.has(b.id)?6:0)+(fixedB?3:0)+(expected.has(b.id)?2:0)+(heads.has(b.id)?1:0);
+   return pB-pA||datePriority(b)-datePriority(a)||a.id.localeCompare(b.id);
+  });
+  const x=ready.shift(),onMain=mainFirstPath.has(x.id); let pos=laneById.get(x.id);
+  if(pos===undefined){
+   if(onMain) pos=0;
+   else {
+    pos=active.findIndex((s,j)=>j>0&&s?.want===x.id);
+    if(pos<0){pos=active.findIndex((s,j)=>j>0&&!s); if(pos<0)pos=active.length;}
+   }
+   laneById.set(x.id,pos);
+  }
+  if(active[pos]?.want && active[pos].want!==x.id){
+   let free=active.findIndex((s,j)=>j>0&&!s); if(free<0) free=active.length; active[free]=active[pos];
+  }
+  const color=onMain?COLOR_BY_BRANCH.main:(colorById.get(x.id)||colorFor(x.id,pos));
+  colorById.set(x.id,color); active[pos]=null;
+  const priority=[...x.edges].sort((a,b)=>Number(!mainFirstPath.has(a.id))-Number(!mainFirstPath.has(b.id)));
+  for(let j=0;j<priority.length;j++){
+   const e=priority[j]; if(active.some(v=>v?.want===e.id)) continue;
+   let target=laneById.get(e.id);
+   if(target===undefined){
+     if(mainFirstPath.has(e.id)) target=0;
+     else if(j===0&&pos!==0) target=pos;
+     else { target=active.findIndex((v,i)=>i>0&&!v); if(target<0) target=active.length; }
+   }
+   if(active[target]&&active[target].want!==e.id){
+     let free=active.findIndex((v,i)=>i>0&&!v); if(free<0) free=active.length; active[free]=active[target];
+   }
+   if(!laneById.has(e.id)) laneById.set(e.id,target);
+   if(!colorById.has(e.id)) colorById.set(e.id,mainFirstPath.has(e.id)?COLOR_BY_BRANCH.main:(j===0?color:PALETTE[(pos+j+2)%PALETTE.length]));
+   active[target]={want:e.id,color:colorById.get(e.id)};
+  }
+  for(const e of x.edges){ unresolved.set(e.id,unresolved.get(e.id)-1); if(unresolved.get(e.id)===0) ready.push(nodes.get(e.id)); }
+ }
+ if(laneById.size!==nodes.size)throw Error('Incomplete lane assignment');
+ const pending=new Map([...nodes].map(([id,x])=>[id,x.edges.length]));
+ const childOf=new Map([...nodes].map(([id])=>[id,[]]));
+ for(const x of nodes.values())for(const e of x.edges)childOf.get(e.id).push(x.id);
+ const chronoKey=new Map();
+ function exactMinutes(x){if(!x.clock||!/^\d{2}:\d{2}$/.test(x.clock))return null;const [h,m]=x.clock.split(':').map(Number);return h*60+m;}
+ // Derive ordering bounds (not displayed timestamps) from dated ancestors/descendants.
+ const lower=new Map(),upper=new Map();
+ const chronoDate=x=>x.date||'0000-00-00';
+ const dates=[...new Set([...nodes.values()].map(x=>chronoDate(x)))].sort();
+ for(const date of dates){
+  const ns=[...nodes.values()].filter(x=>chronoDate(x)===date);
+  for(const x of ns){const t=exactMinutes(x);lower.set(x.id,t===null?0:t);upper.set(x.id,t===null?1439:t);}
+  // Relax in topo ancestry order to propagate times only in the same day.
+  for(let t=0;t<ns.length+1;t++){
+   let changed=false;
+   for(const x of ns){for(const p of x.edges){const parent=nodes.get(p.id);if(chronoDate(parent)!==date)continue;
+    if(lower.get(x.id)<lower.get(p.id)){lower.set(x.id,lower.get(p.id));changed=true;}
+    if(upper.get(p.id)>upper.get(x.id)){upper.set(p.id,upper.get(x.id));changed=true;}
+   }}
+   if(!changed)break;
+  }
+ }
+ for(const x of nodes.values()){
+  const e=exactMinutes(x),lo=lower.get(x.id)||0,hi=upper.get(x.id)??1439;
+  // Unknown times are held near their verified chronological neighbors.
+  const estimated=e!==null?e:Math.max(0,Math.min(1439,(lo+Math.max(lo,hi))/2));
+  chronoKey.set(x.id,estimated);
+ }
+ ready=[...nodes.values()].filter(x=>pending.get(x.id)===0);
+ const ordered=[];
+ while(ready.length){
+  ready.sort((a,b)=>{
+   const byDate=chronoDate(a).localeCompare(chronoDate(b));if(byDate!==0)return byDate;
+   const byTime=chronoKey.get(a.id)-chronoKey.get(b.id);if(byTime!==0)return byTime;
+   return Number(mainFirstPath.has(b.id))-Number(mainFirstPath.has(a.id))||a.id.localeCompare(b.id);
+  });
+  const x=ready.shift();x.row=ordered.length;x.lane=laneById.get(x.id);x.color=colorById.get(x.id);ordered.push(x);
+  for(const child of childOf.get(x.id)){pending.set(child,pending.get(child)-1);if(pending.get(child)===0)ready.push(nodes.get(child));}
+ }
+ if(ordered.length!==nodes.size)throw Error('The graph contains a cycle');
+ const byId=new Map(ordered.map(x=>[x.id,x]));
+ for(const x of ordered)for(const e of x.edges){const p=byId.get(e.id);if(p.row>=x.row)throw Error('Parent is positioned after its child');}
+ 
+ // Derive the name attached to EVERY node from Git ancestry, not SVG column placement.
+ // The shared base of a fork keeps the upstream branch label.
+ // Ref precedence: main first, then releases, then older feature branches,
+ // then fixes, research and historical integration references.
+ const priority=name=>name===d.baseBranch?0:name.startsWith('release/')?1:name.startsWith('feature/')?2:name.startsWith('integration/')?3:name.startsWith('fix/')?4:name.startsWith('research/')?5:6;
+ const allRefs=Object.entries(d.refs).filter(([_,sha])=>n.has(sha));
+ allRefs.sort(([a,ah],[b,bh])=>priority(a)-priority(b)||datePriority(n.get(ah))-datePriority(n.get(bh))||a.localeCompare(b));
+ const owned=new Map();
+ for(const [name,head] of allRefs){
+   const seen=new Set();let nodeId=head;
+   while(n.has(nodeId)&&!seen.has(nodeId)){
+     seen.add(nodeId);
+     if(!owned.has(nodeId))owned.set(nodeId,name);
+     nodeId=n.get(nodeId).parents[0]?.id;
+   }
+ }
+ // For commits reachable only via a merge's second parent, use the nearest
+ // branch head in real ancestry rather than an arbitrary geometric lane.
+ const nearest=new Map();
+ for(const [name,head] of allRefs){
+   const queue=[[head,0]],seen=new Set();
+   for(let i=0;i<queue.length;i++){
+     const [id,distance]=queue[i];if(seen.has(id)||!n.has(id))continue;seen.add(id);
+     const current=nearest.get(id);
+     if(!current||distance<current.distance||(distance===current.distance&&priority(name)<priority(current.name)))nearest.set(id,{name,distance});
+     for(const e of n.get(id).parents)queue.push([e.id,distance+1]);
+   }
+ }
+ const labelsById=new Map();
+ for(const x of ordered){
+   const exact=refmap.get(x.id)||[];
+   const name=owned.get(x.id)||nearest.get(x.id)?.name||'Historical branch without a current ref';
+   labelsById.set(x.id,exact.length?exact:[name]);
+ }
+ return {ordered,byId,refmap,labelsById,summary:mode!=='full',nodecount:ordered.length,original:n.size,heads,mainFirstPath,laneCount:Math.max(0,...ordered.map(x=>x.lane||0))+1};
+}
+function render(){
+ try{
+  const ctx=prep(),v=makeView(ctx);
+   // Keep the topology/certification pass independent of the display direction.
+   // Descending order simply reverses an already validated topological sequence.
+   const rows=newestFirst?[...v.ordered].reverse():[...v.ordered];
+   rows.forEach((x,i)=>x.row=i);
+   v.ordered=rows;
+   currentView=v;
+   const step=mode==='full'?28:39,graphx=37,gap=27;
+  const maxlane=Math.max(0,...rows.map(x=>x.lane));const infox=Math.max(180,graphx+(maxlane+1)*gap+15);
+   // Reserve the actual width of the *entire* branch name. No ellipses.
+   const badgeX=infox+265;
+   const measure=document.createElement('canvas').getContext('2d');
+   measure.font='600 11px Inter, Segoe UI, Arial, sans-serif';
+   const allBranchLabels=[...v.labelsById.values()].map(names=>names.join(' · ')).filter(Boolean);
+   const branchWidth=Math.max(170,...allBranchLabels.map(name=>Math.ceil(measure.measureText(name).width)+22));
+   const width=Math.max(930,badgeX+branchWidth+162);
+   const head=64,height=head+rows.length*step+24;
+  const svg=el('svg',{xmlns:'http://www.w3.org/2000/svg',width,height,viewBox:`0 0 ${width} ${height}`,class:'graph-svg',role:'img','aria-label':'Git commit and branch history ordered by date'});
+  const viewport=$('#viewport');const fit=Math.min(1,Math.max(.28,(viewport.clientWidth-12)/width));const applied=fit*scale;
+  svg.style.width=(width*applied)+'px';svg.style.height=(height*applied)+'px';
+  const bg=el('g'),paths=el('g'),marks=el('g'),labels=el('g');svg.append(bg,paths,marks,labels);
+  bg.appendChild(el('rect',{x:0,y:0,width,height,fill:'#0e1727'}));bg.appendChild(el('rect',{x:0,y:0,width,height:42,fill:'#142237'}));
+  bg.appendChild(textNode(infox,26,'COMMIT / CHANGE','headtxt'));bg.appendChild(textNode(badgeX,26,'ASSOCIATED BRANCH','headtxt'));bg.appendChild(textNode(width-143,26,'DATE · SHA','headtxt'));
+  const coor=x=>({x:graphx+gap*x.lane,y:head+x.row*step});
+  for(const x of rows){const {y}=coor(x);if(x.row%2===1)bg.appendChild(el('rect',{x:0,y:y-step*.48,width,height:step,fill:'#fff',opacity:'.018'}));if(x.row===0||x.date!==rows[x.row-1]?.date){const date=x.date||'Context';bg.appendChild(el('path',{d:`M 0 ${y-step*.55} H ${width}`,stroke:'#36506d','stroke-width':1,opacity:'.72'}));bg.appendChild(textNode(width-12,y-step*.55-5,date,'daytext',{'text-anchor':'end'}));}}
+   // Path layout depends only on screen coordinates, so reversing chronology
+   // does not create backtracking elbows or inverted curves.
+   for(const x of rows){const child=coor(x);for(let i=0;i<x.edges.length;i++){
+    const e=x.edges[i],p=v.byId.get(e.id);if(!p)continue;
+    const parent=coor(p);
+    const top=child.y<parent.y?child:parent;
+    const bottom=child.y<parent.y?parent:child;
+    let d;
+    if(Math.abs(top.x-bottom.x)<.1){d=`M ${top.x} ${top.y} L ${bottom.x} ${bottom.y}`;}
+    else{
+      const y0=top.y,y1=bottom.y,mid=y0+(y1-y0)*.66;
+      d=`M ${top.x} ${y0} L ${top.x} ${Math.max(y0,mid-12)} C ${top.x} ${mid}, ${bottom.x} ${mid}, ${bottom.x} ${Math.min(y1,mid+12)} L ${bottom.x} ${y1}`;
+    }
+    const line=el('path',{d,class:e.collapsed>0?'edge compressed':'edge',stroke:i===0?x.color:p.color,'stroke-width':i===0?2.7:2.3,fill:'none'});
+    paths.appendChild(line);
+    if(e.collapsed>0){const yy=(child.y+parent.y)/2,rx=top.x===bottom.x?top.x:top.x+(bottom.x-top.x)*.3;const g=el('g',{class:'fold-mark'});g.appendChild(el('rect',{x:rx+6,y:yy-8,width:Math.min(48,18+String(e.collapsed).length*7),height:16,rx:5,fill:'#263a55',stroke:'#526681','stroke-width':.8}));g.appendChild(textNode(rx+13,yy+3,'+'+e.collapsed,'fold-text'));marks.appendChild(g);}
+   }}
+  for(const x of rows){const {x:cx,y}=coor(x),branches=v.labelsById.get(x.id)||v.refmap.get(x.id)||[],merge=x.edges.length>1;
+   if(x.boundary){
+     const dy=newestFirst?25:-25;
+     const endY=y+dy;
+     const c=el('g',{class:'history-boundary'});
+     c.appendChild(el('path',{d:`M ${cx} ${y} L ${cx} ${endY}`,stroke:x.color,'stroke-width':2.3,'stroke-dasharray':'3 4',fill:'none'}));
+     c.appendChild(el('path',{d:`M ${cx-5} ${endY-(dy>0?5:-5)} L ${cx} ${endY} L ${cx+5} ${endY-(dy>0?5:-5)}`,stroke:x.color,'stroke-width':2.3,fill:'none'}));
+     c.appendChild(el('title')).textContent=x.boundary_description||'Git history continues before the displayed interval.';
+     marks.appendChild(c);
+   }
+   const row=el('g',{class:'commit-row','data-id':x.id,tabindex:'0',role:'button','aria-label':`Commit ${x.id}`});
+   row.appendChild(el('rect',{x:0,y:y-step*.47,width,height:step*.94,fill:'#2b4c6d',class:'hover-bg',rx:4}));row.appendChild(el('circle',{cx,cy:y,r:merge?7.5:6,fill:'#0e1727',stroke:x.color,'stroke-width':merge?3.2:2.8}));if(branches.length)row.appendChild(el('circle',{cx,cy:y,r:2.5,fill:x.color}));if(merge)row.appendChild(el('circle',{cx,cy:y,r:1.8,fill:'#fff'}));
+   let msg=x.msg||(branches.length?'Branch tip':merge?'Merge':x.boundary?'History boundary':'Branch point');if(msg.length>37)msg=msg.slice(0,35)+'…';
+   if(x.boundary)msg='◂ '+msg;
+   row.appendChild(textNode(infox,y+4,msg,x.msg?'message':'message muted'));
+   if(branches.length){
+     const names=branches.join(' · ');
+     const bw=Math.max(54,Math.ceil(measure.measureText(names).width)+20);
+     row.appendChild(el('rect',{x:badgeX-8,y:y-11,width:bw,height:22,rx:7,fill:x.color,opacity:.16}));
+     row.appendChild(textNode(badgeX+2,y+4,names,'branch-label'));
+    }
+   const when=x.date?(x.date.slice(8)+'/'+x.date.slice(5,7)+(x.clock?' '+x.clock:'')):'no date';row.appendChild(textNode(width-144,y+4,when+' '+x.id.slice(0,7),'meta'));
+   row.appendChild(el('title')).textContent=[x.id,x.date+(x.clock?' '+x.clock:' (time unavailable)'),x.msg||'No commit message retrieved',...branches,...(x.boundary?[x.boundary_description||'History boundary', 'Historical parents outside the view: '+(x.unshown_parents||[]).join(', ')]:[])].join('\n');
+   row.addEventListener('click',()=>showDetails(x,branches));row.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();showDetails(x,branches);}});labels.appendChild(row);
+  }
+  $('#graph').replaceChildren(svg);const folds=rows.reduce((sum,x)=>sum+x.edges.filter(e=>e.collapsed>0).length,0);
+  $('#total').textContent=rows.length.toLocaleString('en-US');$('#merges').textContent=rows.filter(x=>x.edges.length>1).length;$('#countrefs').textContent=Object.keys(ctx.d.refs).length;$('#gaps').textContent=folds;$('#zoomv').textContent=Math.round(applied*100)+'%';
+  $('#stat-title').textContent=ctx.d.displayName+' · '+(mode==='summary'?'Structure':'All commits');
+  $('#stat-subtitle').textContent=(mode==='summary'?`${v.original-rows.length} topologically unremarkable commits collapsed.`:`${rows.length} commits; order ${newestFirst?'descending':'ascending'}.`)+' Complete ancestry reachable from the selected branches.';
+  $('#legend').textContent=(newestFirst?'↓ Newest at top · oldest at bottom':'↑ Oldest at top · newest at bottom')+` · ${ctx.d.baseBranch} in the first column · +N = intermediate commits collapsed. Branch names indicate associated ancestry, not necessarily creation or exclusive ownership.`;
+   $('#order-description').textContent=newestFirst?'Reverse chronological order · newest at top, oldest at bottom':'Chronological order · oldest at top, newest at bottom';
+   $('#order-tag').textContent=newestFirst?'↓ Newest at top':'↑ Oldest at top';
+   $('#flip-time').textContent=newestFirst?'⇅ Newest first':'⇅ Oldest first';
+   $('#go-top').textContent=newestFirst?'↑ Newest':'↑ Oldest';
+   $('#go-latest').textContent=newestFirst?'↓ Oldest':'↓ Newest';
+  const filter=$('#filter-branch'),old=filter.value;filter.replaceChildren(new Option('All branches',''));for(const [name,id] of Object.entries(ctx.d.refs))filter.add(new Option(name,id+'|'+name));if([...filter.options].some(v=>v.value===old))filter.value=old;
+  highlight();
+ }catch(err){console.error(err);$('#graph').textContent='Render error: '+err.message;}
+}
+function showDetails(x,branches){selected=x.id;$('#detail-head').textContent=x.msg||'Commit '+x.id;$('#detail-sha').textContent=x.id+'… (abbreviated SHA)';$('#detail-date').textContent=x.date+(x.clock?' '+x.clock+' UTC':' · time unavailable');$('#detail-branches').textContent=branches.length?branches.join(', '):'No direct branch reference at this commit';$('#detail-parents').replaceChildren();if(x.edges?.length){for(const e of x.edges){const item=E('div',{className:'parent-item'});item.textContent=e.id+' '+(e.collapsed>0?`(${e.collapsed} intermediate commits collapsed)`:'(direct parent)');$('#detail-parents').appendChild(item);}}else $('#detail-parents').textContent=x.boundary?('History predates the displayed interval · actual parents outside the view: '+(x.unshown_parents||[]).join(', ')):'Start of displayed history segment';const origin=RAW[repo].originUrl||''; $('#link-commit').hidden=!origin; if(origin)$('#link-commit').href=origin.replace(/\/+$/,'')+'/commit/'+encodeURIComponent(x.id);$('#detail').hidden=false;highlight();}
+function highlight(){const val=$('#filter-branch').value,desired=val?val.split('|')[0]:null;const lineage=new Set();if(desired&&currentView){const q=[desired];while(q.length){const id=q.pop();if(lineage.has(id))continue;lineage.add(id);for(const p of currentView.byId.get(id)?.edges||[])q.push(p.id);}}for(const el of document.querySelectorAll('.commit-row')){const id=el.dataset.id;el.classList.toggle('focused',id===selected);el.classList.toggle('dimmed',lineage.size>0&&!lineage.has(id));}}
+function changeRepo(name){repo=name;selected=null;$('#detail').hidden=true;for(const b of document.querySelectorAll('[data-repo]'))b.classList.toggle('chosen',b.dataset.repo===repo);render();$('#viewport').scrollTop=0;}
+function changeMode(name){mode=name;selected=null;$('#detail').hidden=true;for(const b of document.querySelectorAll('[data-mode]'))b.classList.toggle('chosen',b.dataset.mode===mode);render();$('#viewport').scrollTop=0;}
+function changeScale(delta){scale=Math.max(.5,Math.min(2,scale+delta));render();}
+function flipTime(){
+ const viewport=$('#viewport');const oldHeight=viewport.scrollHeight;
+ const oldScroll=viewport.scrollTop;const height=viewport.clientHeight;
+ newestFirst=!newestFirst;
+ selected=null;$('#detail').hidden=true;
+ render();
+ // Preserve approximate historic context when changing the direction.
+ viewport.scrollTop=Math.max(0,oldHeight-oldScroll-height);
+}
+for(const b of document.querySelectorAll('[data-repo]'))b.addEventListener('click',()=>changeRepo(b.dataset.repo));
+$('#flip-time').addEventListener('click',flipTime);
+for(const b of document.querySelectorAll('[data-mode]'))b.addEventListener('click',()=>changeMode(b.dataset.mode));
+$('#zoom-in').addEventListener('click',()=>changeScale(.1));$('#zoom-out').addEventListener('click',()=>changeScale(-.1));
+$('#filter-branch').addEventListener('change',highlight);$('#close-detail').addEventListener('click',()=>{$('#detail').hidden=true;selected=null;highlight();});
+$('#go-top').addEventListener('click',()=>$('#viewport').scrollTo({top:0,behavior:'smooth'}));$('#go-latest').addEventListener('click',()=>$('#viewport').scrollTo({top:$('#viewport').scrollHeight,behavior:'smooth'}));
+$('#find').addEventListener('input',()=>{const q=$('#find').value.trim().toLowerCase();$('#found').textContent='';for(const el of document.querySelectorAll('.commit-row'))el.classList.remove('matched');if(q.length<3)return;const arr=currentView?.ordered.filter(n=>n.id.includes(q)||(n.msg||'').toLowerCase().includes(q)||(currentView.refmap.get(n.id)||[]).some(s=>s.toLowerCase().includes(q)))||[];$('#found').textContent=arr.length+' matches';if(arr.length){const id=arr[0].id,row=document.querySelector(`.commit-row[data-id="${id}"]`);if(row){row.classList.add('matched');const svg=$('.graph-svg'),effective=svg.getBoundingClientRect().width/Number(svg.getAttribute('width'));$('#viewport').scrollTop=Math.max(0,(currentView.byId.get(id).row*(mode==='full'?28:39)+64)*effective-90);}}});
+$('#download-svg').addEventListener('click',()=>{const svg=$('.graph-svg');if(!svg)return;const clone=svg.cloneNode(true);clone.setAttribute('xmlns','http://www.w3.org/2000/svg');const style=el('style');style.textContent='.message{font:13px Arial;fill:#e2eaf4}.muted{fill:#8b9cb5}.meta{font:11px monospace;fill:#91a8be}.branch-label{font:11px Arial;fill:#e6f1fc}.headtxt,.daytext{font:11px Arial;fill:#91a8be}.fold-text{font:10px Arial;fill:#cbd7e7}.commit-row .hover-bg{opacity:0}';clone.insertBefore(style,clone.firstChild);const raw='<?xml version="1.0" encoding="UTF-8"?>\n'+new XMLSerializer().serializeToString(clone);const url=URL.createObjectURL(new Blob([raw],{type:'image/svg+xml;charset=utf-8'}));const a=E('a',{href:url,download:`${RAW[repo].displayName}-git-${mode}-chronological.svg`});document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);});
+window.addEventListener('resize',()=>render());
+render();
+// Start at the most recent commits by default.
+$('#viewport').scrollTop=0;
+</script></body></html>
