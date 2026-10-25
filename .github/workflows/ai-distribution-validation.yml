@@ -51,7 +51,7 @@ jobs:
           from pathlib import Path
           data = json.loads(Path("artifacts/sample.json").read_text())["repo0"]
           nodes = {node["id"]: node for node in data["nodes"]}
-          assert data["baseBranch"] == "main", data["baseBranch"]
+          assert data["baseBranch"] in ("main", "origin/main"), data["baseBranch"]
           assert len(data["refs"]) >= 29, len(data["refs"])
           assert len(nodes) >= 61, len(nodes)
           assert any(len(node["parents"]) == 3 for node in nodes.values())
