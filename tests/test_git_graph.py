@@ -181,18 +181,18 @@ class GraphTests(unittest.TestCase):
                 page.set_content(html, wait_until="load", timeout=30000)
                 self.assertEqual(page.title(), 'diGITrail · Git Branch History')
                 self.assertIn('Branch & Commit History', page.locator('h1').inner_text())
-                self.assertIn('Newest', page.locator('#order-tag').inner_text())
+                self.assertIn('Newest', page.locator('#order-description').inner_text())
                 for tab in ("repo0", "repo1"):
                     page.locator(f'button[data-repo="{tab}"]').click()
                     for mode in ("summary", "full"):
                         page.locator(f'button[data-mode="{mode}"]').click()
-                        if 'Oldest' in page.locator('#order-tag').inner_text():
+                        if 'Oldest' in page.locator('#order-description').inner_text():
                             page.locator('#flip-time').click()
                         for orientation in range(2):
                             if orientation:
                                 page.locator("#flip-time").click()
                             self.assertIn('Oldest' if orientation else 'Newest',
-                                          page.locator('#order-tag').inner_text())
+                                          page.locator('#order-description').inner_text())
                             self.assertFalse(errors, errors)
                             self.assertEqual(page.locator(".commit-row").count(),
                                              6 if mode == "full" else 4)
