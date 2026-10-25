@@ -8,9 +8,10 @@ command-line renderer remains unchanged.
 Provide the diGITrail source URL and a target repository URL:
 
 > Read the real diGITrail SKILL.md and renderer at
-> https://github.com/0biguan/diGITrail and generate its original
-> self-contained HTML graph for
-> https://github.com/0biguan/diGITrail-sample over the last 7 days.
+> https://github.com/0biguan/diGITrail/tree/feature/ai-distribution
+> and generate its original self-contained HTML graph for
+> https://github.com/0biguan/diGITrail-sample with activity from
+> 1 October 2026 (00:00 UTC) through the time of this request.
 > Use real Git parent relationships. Do not substitute another graph renderer.
 > Do not make any changes to either GitHub repository.
 
@@ -52,8 +53,11 @@ In a new **Work** conversation, ask:
 > Use the original diGITrail from
 > https://github.com/0biguan/diGITrail/tree/feature/ai-distribution
 > to generate the standalone interactive HTML history for
-> https://github.com/0biguan/diGITrail-sample for the last 7 days.
-> Read SKILL.md from that exact source branch first. If Work has network-enabled
+> https://github.com/0biguan/diGITrail-sample with activity from
+> 1 October 2026 (00:00 UTC) through the time of this request.
+> Preserve complete verified ancestry to show genuine branch origins.
+> Choose the corresponding --as-of and --days cutoff (there is no
+> native --since flag). Read SKILL.md from that exact source branch first. If Work has network-enabled
 > shell access, retrieve the verified project code and a **full-history** clone
 > of the sample into isolated temporary cloud directories. Execute the
 > original scripts/generate_git_graph.py with --remotes, and deliver the actual
@@ -96,7 +100,8 @@ Installation does not grant GitHub access or a Python runtime.
 Example after successful installation:
 
 > Use diGITrail to generate the HTML commit graph for
-> 0biguan/diGITrail-sample covering the last seven days.
+> 0biguan/diGITrail-sample covering activity from 1 October 2026
+> through the time of this request, with full branch ancestry.
 
 The ZIP structure and embedded code are tested automatically; **acceptance by
 ChatGPT and end-to-end execution still require a separate manual test.**
