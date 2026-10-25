@@ -322,6 +322,41 @@
       "feature/dark-mode": "9ec4561fcd82b1c27546be028d18d60aff3423ec",
       "docs/quick-start": "06d12d439a13aa41277a0266e3fe64a24d2db6bb"
     },
-    "scope": "Entirely fictional demonstration. Names, identifiers, messages, dates and parent relationships were created for this example; no real repository or personal data is included."
+    "scope": "Entirely fictional demonstration. Names, identifiers, messages, dates and parent relationships were created for this example; no real repository or personal data is included.",
+    "tags": {
+      "v0.1.0": {
+        "commit": "aeb4630366b92feab23533eb407c10330b8a71f6",
+        "type": "lightweight"
+      },
+      "v0.3.0": {
+        "commit": "8b6080fab4f6d1c5795c0a8a0789fd26d4c3550a",
+        "type": "lightweight"
+      },
+      "docs-preview": {
+        "commit": "ced3c0ffd132a6951d4bd0d88357cd0435fd74ba",
+        "type": "annotated",
+        "tagger": "Example Maintainer",
+        "date": "2000-01-02T10:00:00+00:00",
+        "message": "Fictional documentation preview"
+      },
+      "v0.9.0-rc1": {
+        "commit": "8e7b52fe16de3cf679b5ac8fb5440d33cc462ca5",
+        "type": "annotated",
+        "tagger": "Example Maintainer",
+        "date": "2000-01-03T12:30:00+00:00",
+        "message": "Release candidate for the fictional app"
+      },
+      "v1.0.0": {
+        "commit": "79bf5d08e6062f8fc28e108b56122ac3aa15e197",
+        "type": "annotated",
+        "tagger": "Example Maintainer",
+        "date": "2000-01-05T10:00:00+00:00",
+        "message": "First stable fictional release"
+      },
+      "stable": {
+        "commit": "79bf5d08e6062f8fc28e108b56122ac3aa15e197",
+        "type": "lightweight"
+      }
+    }
   }
 }
