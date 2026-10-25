@@ -114,6 +114,15 @@ availability varies by account. See `docs/AI_CERTIFICATION.md`.
 
 Official reference: https://help.openai.com/en/articles/20001066-skills-in-chatgpt
 
+**Ordinary Chat limitation (2026-10-25):** The same user tested an installed
+skill in a regular Chat conversation; that environment could not find the
+`digitrail` skill, `generate_git_graph.py` or its files, even though Git
+was installed. No report was produced. This is a failure of skill visibility
+in that tested session, **not** a failure of the original renderer and not
+evidence that installation was lost. For now, the installed-skill workflow is
+verified in **ChatGPT Work**, not in ordinary Chat. Account and session
+permissions may vary.
+
 ## 3. Local command line (existing stable path)
 
 Python 3.9+ and Git:
