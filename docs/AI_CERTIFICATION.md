@@ -44,6 +44,26 @@ A successful CI run certifies the tested CLI/package *within the hosted
 environment*. It does not establish ChatGPT skill installation or generic
 zero-install use.
 
+## First independent zero-install result (2026-10-25)
+
+**FAIL in ordinary ChatGPT chat**, from the user's clean-session report:
+
+- The assistant could consult SKILL.md on feature/ai-distribution.
+- Its Python 3.13.5 and Git 2.47.3 were present, but
+  `curl` could not resolve `raw.githubusercontent.com` (DNS error 6).
+- It could not transfer the original renderer/template and complete verified
+  Git DAG into the Python execution environment.
+- No original interactive HTML was produced.
+- This does **not** demonstrate failure of the renderer or CLI.
+- A recommendation to manually upload ZIP files would not meet the user's
+  zero-install acceptance condition.
+
+**Next experiment:** independent new **ChatGPT Work** session with a
+network-enabled cloud computer. The experimental SKILL.md explicitly permits
+read-only full-history Git clones inside temporary cloud storage for this path.
+Acceptance requires a real generated HTML and no remote GitHub writes.
+No Work result has yet been verified.
+
 ## Manual acceptance tests still required
 
 - Upload the candidate ZIP to an eligible ChatGPT workspace and verify that
