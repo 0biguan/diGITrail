@@ -28,6 +28,11 @@ jobs:
           path: digitrail-sample
           persist-credentials: false
 
+      - name: Install Chromium for interactive regression (CI only)
+        run: |
+          python3 -m pip install playwright==1.55.0
+          python3 -m playwright install --with-deps chromium
+
       - name: Check regression tests
         working-directory: digitrail
         run: python3 -m unittest discover -s tests -v
