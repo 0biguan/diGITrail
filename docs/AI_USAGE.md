@@ -137,8 +137,14 @@ library are needed for its renderer.
 - All three modes should use the **same** scripts/generate_git_graph.py.
 - The original HTML must keep Structure/All commits, time reversal, search,
   branch highlighting and SVG export.
-- The original generator currently does **not** render tag labels, even if
-  tag refs exist in GitHub. Tag support is a separate feature.
+- The generator now reads lightweight and annotated Git tags and includes
+  validated tag metadata in the JSON input format. Their commits appear in
+  Structure view, gold pills share the Associated references column, and
+  the summary shows separate branch/tag counts with All/Branches/Tags
+  label filters. Tags are scoped to the selected branch ancestry.
+- The source-backed GitHub sample provides eight published tag fixtures for
+  the regression workflow. This new feature is certified only once the
+  corresponding GitHub-hosted tag tests pass.
 - Use a synthetic test repository and test without writing any Git refs.
 - Do not promise universal zero-install compatibility before fresh-session
   tests establish the specific supported ChatGPT surfaces.

@@ -11,6 +11,16 @@ The CLI accepts one dataset or a JSON object of datasets. Each dataset uses the 
     "main": "full-commit-sha-A",
     "feature/task": "full-commit-sha-B"
   },
+  "tags": {
+    "v1.0.0": {
+      "commit": "full-commit-sha-A",
+      "type": "annotated",
+      "tagger": "Example Maintainer",
+      "date": "2026-10-25T10:00:00+00:00",
+      "message": "First stable release"
+    },
+    "v0.9.0": {"commit": "full-commit-sha-B", "type": "lightweight"}
+  },
   "nodes": [
     {
       "id": "full-commit-sha-A",
@@ -31,6 +41,9 @@ The CLI accepts one dataset or a JSON object of datasets. Each dataset uses the 
 * Use committer dates in UTC (`YYYY-MM-DD` and `HH:MM`) where possible. Avoid guessing missing timestamps.
 * SHA values should preferably be the full SHA returned by Git. They must be unique and consistent across nodes and refs.
 * `refs` represents the selected branch heads. `baseBranch` must match one of its keys.
+* `tags` is an **optional** object indexed by tag name. Each entry has `commit` (a SHA of a commit in `nodes`) and `type` (`lightweight` or `annotated`). Annotated tags may include optional string `tagger`, `date` and `message` fields. Unknown/missing targets and malformed types are rejected.
+* An annotated Git tag refers to a tag object, which must be **peeled** to its final commit; never present its tag-object SHA as the commit SHA. A lightweight tag already points to the commit.
+* The renderer plots only tags on commits retained by the selected branch history. Use `--all-branches` to include tags on otherwise inactive branch ancestry. Non-commit tags (e.g. tags of a blob) are not plotted. Multiple tags may share a single commit.
 * A commit can be reachable from multiple branch heads; a branch label is a UI interpretation, not an exclusive property of the commit.
 * Do not substitute GitHub pull-request base/head branch names for actual SHA parent links.
 * `originUrl` must be a trusted http(s) repository URL for clickable commit links; leave empty for local-only histories.

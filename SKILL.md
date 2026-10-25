@@ -17,9 +17,10 @@ Use diGITrail when the user asks for a GitKraken-like history graph, branch visu
 
 1. Identify the repository and time window. Default to the last seven days of branch activity if not specified. Reuse the repository already established in the conversation. Ask only if it is genuinely unknown and cannot be found. Include multiple repositories with repeated `--repo` flags when appropriate.
 2. Prefer the supplied or locally available Git checkout. Run `scripts/generate_git_graph.py` without altering the repository. **Zero-install cloud mode:** when the user explicitly supplies a GitHub repository URL and requests a report, an assistant with a network-enabled isolated cloud computer (e.g. ChatGPT Work) may clone that public repository **read-only into a temporary cloud directory** to obtain complete refs and ancestry. It may also download this tool's reviewed, pinned source into the same temporary environment. Never use `git push`, create or modify remote Git refs, merge, trigger CI workflows, or alter the user's own checkout. Do not change the target repo or its hosted state. Use a full-history clone for the target: shallow copies hide parents and do not meet the ancestry requirement. If the shell has no network access, use verified GitHub connector data and the JSON-input path **only if** the data and renderer can be delivered into the same execution environment. Otherwise report the limitation; do not ask the user to install the tool locally as if that satisfied zero-install.
-3. Produce a standalone HTML file with the interactive graph and controls. Optionally produce a validated JSON evidence file with `--also-json`.
-4. Validate the commit/parent structure. When a graphical browser is available, exercise both chronological directions and both **Structure** and **All commits** views for each repository.
-5. Link to the verified HTML output file and explain the selected period, branch and commit counts, and any incomplete history or other limitations. Never claim that branch creation dates were verified merely because heads have recent commits.
+3. Read Git lightweight and annotated tags. Resolve annotated tag objects to their target commit before displaying them. Keep tags in the optional `tags` section of connector JSON (see `references/data-format.md`) with actual target commit SHA, kind and optional annotation metadata. Do not invent tag targets. A tag on a commit outside the selected branch ancestry is not included unless that branch is selected (use `--all-branches` for inactive branches).
+4. Produce a standalone HTML file with the interactive graph and controls. Optionally produce a validated JSON evidence file with `--also-json`.
+5. Validate the commit/parent structure, tag targets and tag types. When a graphical browser is available, exercise both chronological directions, both **Structure** and **All commits** views, the All/Branches/Tags label filters and SVG export for each repository.
+6. Link to the verified HTML output file and explain the selected period, branch and commit counts, and any incomplete history or other limitations. Never claim that branch creation dates were verified merely because heads have recent commits.
 
 ## Commands
 
@@ -54,7 +55,7 @@ If the graph is too large, narrow the branches or period **without inventing end
 
 ## GitHub connector or other verified commit data
 
-When a local checkout is unavailable and the user has granted access to a GitHub connector, read each relevant commit's **SHA, ordered parent SHAs, committer timestamp, and subject**, plus the branch-head refs. Retrieve ancestors until every referenced parent is included, or explicitly mark genuine known history boundaries. If required parents cannot be verified, state that full origin verification was not possible.
+When a local checkout is unavailable and the user has granted access to a GitHub connector, read each relevant commit's **SHA, ordered parent SHAs, committer timestamp, and subject**, plus the branch-head refs. Retrieve ancestors until every referenced parent is included, or explicitly mark genuine known history boundaries. If required parents cannot be verified, state that full origin verification was not possible. Also retrieve applicable tag refs, resolve annotated tag objects to their final commit targets and preserve tagger/date/message when available. Only include tags whose targets are in the selected graph.
 
 Normalize the data to the schema in `references/data-format.md`, save it as JSON, and generate the HTML:
 
@@ -72,7 +73,9 @@ Each commit can be reachable from more than one branch. The branch name shown fo
 - Show the **newest commits at the top** by default, with a button to reverse the order.
 - Show a **full branch label on every visible node**. Avoid truncation or ellipses in branch labels.
 - Keep distinct branches on separate lanes until their **real common ancestor**. Do not merge branches visually just because they can reuse an SVG column.
-- The default **Structure** view retains branch references, merges, divergence points, and true roots, compressing linear chains into `+N` counts. **All commits** displays each commit separately.
+- The default **Structure** view retains branch references, **tagged commits**, merges, divergence points, and true roots, compressing other linear chains into `+N` counts. **All commits** displays each commit separately.
+- Display gold tag pills next to branch labels in **Associated references**. Show separate **branches** and **tags** counts. Offer **All**, **Branches**, **Tags** label filters without changing graph nodes or edges. Always include tagged commits in Structure view, even when tag labels are hidden. Show optional annotated-tag metadata in commit details.
+- Do not add the redundant top-right `Newest at top` and `Read-only` badges; retain the working chronology-flip control.
 - Keep the header compact and the graph responsive. Provide commit/branch search, branch highlighting, zoom, a details panel, and SVG export.
 - Ship one self-contained HTML file with inline CSS, JavaScript, and data; require no CDN, network fonts, remote images, or live server.
 - Use actual parent SHAs, not pull request base/head metadata, for graph edges.

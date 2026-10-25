@@ -61,11 +61,20 @@ jobs:
           assert len(nodes) >= 61, len(nodes)
           assert any(len(node["parents"]) == 3 for node in nodes.values())
           assert all(p["id"] in nodes for node in nodes.values() for p in node["parents"])
+          tags = data["tags"]
+          assert len(tags) == 8, (len(tags), list(tags))
+          assert set(t["type"] for t in tags.values()) == {"annotated", "lightweight"}
+          assert all(t["commit"] in nodes for t in tags.values())
+          assert "v1.0.0" in tags and "test/root-lightweight" in tags
           html = Path("artifacts/sample.html").read_text()
           assert "__GIT_HISTORY_DATA__" not in html
           assert "__GIT_HISTORY_TABS__" not in html
           assert "Export SVG" in html
-          print("PASS: branch refs, parent graph, octopus merge and HTML")
+          assert "ASSOCIATED REFERENCES" in html
+          assert 'data-ref-visibility="tags"' in html
+          assert 'id="order-tag"' not in html
+          assert ">Read-only</span>" not in html
+          print("PASS: refs, eight tagged commits, octopus merge and HTML")
           PY
 
       - name: Build standalone skill candidate

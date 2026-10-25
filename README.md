@@ -14,8 +14,9 @@ Turn a Git repository into a single, portable HTML report. Explore branch forks,
 
 - **Real Git ancestry:** connections follow ordered commit parents, preserving actual forks and merges.
 - **Readable branch history:** the primary branch stays in the first lane and every visible node has a full branch label.
+- **Git tags:** resolve lightweight and annotated tags to the correct commits; show gold tag labels alongside branch references, an independent tag count and an All/Branches/Tags visibility filter. Tagged commits remain visible in Structure view.
 - **Two levels of detail:** Structure view compresses linear chains; All commits shows every commit.
-- **Interactive exploration:** reverse chronology, search commits, highlight a branch, zoom and inspect commit details.
+- **Interactive exploration:** reverse chronology, search commits and tags, highlight a branch, zoom and inspect commit details (including tag metadata).
 - **Portable output:** share one self-contained HTML file or export the graph as SVG.
 - **Read-only and local:** the generator reads Git without changing your repository or starting CI. Reports need no server, CDN or third-party Python packages.
 - **Three usage modes:** zero-install AI in a capable cloud assistant, installed agent skill, or local CLI. All use the original renderer; multiple repositories can share one report.
@@ -124,7 +125,7 @@ The assistant needs access to Python and a local Git checkout, or complete, veri
 
 ## How history is interpreted
 
-The default seven-day window selects branch heads with recent **commit activity**. Complete reachable ancestry is retained to show where those branches forked, even when it extends beyond the window. Git does not normally record reliable branch creation dates.
+The default seven-day window selects branch heads with recent **commit activity**. Complete reachable ancestry is retained to show where those branches forked, even when it extends beyond the window. Git does not normally record reliable branch creation dates. Tags are included only if their target commits are in the selected ancestry; `--all-branches` also includes tags on inactive branch histories. Lightweight and annotated tags have the same gold visual treatment, with annotated metadata in the detail view.
 
 - Branch labels on shared commits are inferred visual associations. A commit may belong to the ancestry of several branches.
 - Graph edges use commit parent relationships. Pull request targets alone do not establish ancestry.
