@@ -92,6 +92,36 @@ def read_refs(repo: Path, include_remotes: bool) -> dict[str, str]:
     return refs
 
 
+def read_tags(repo: Path) -> dict[str, dict[str, str]]:
+    """Read lightweight and annotated Git tags without modifying refs.
+
+    ^{commit} dereferences annotated tags (including nested tags) and verifies
+    the final object is a commit. Non-commit tags are not plotted.
+    """
+    listing = git(repo, "for-each-ref",
+                  "--format=%(refname:strip=2)%09%(objecttype)%09%(taggername)%09%(taggerdate:iso8601-strict)%09%(contents:subject)",
+                  "refs/tags")
+    tags: dict[str, dict[str, str]] = {}
+    for line in listing.splitlines():
+        parts = line.split("\t", 4)
+        if len(parts) != 5:
+            continue
+        name, kind, tagger, date, subject = parts
+        try:
+            target = git(repo, "rev-parse", "--verify",
+                         f"refs/tags/{name}^{{commit}}").strip()
+        except GraphError:
+            continue  # Tags on trees/blobs cannot label Git commits.
+        if not SHA_RE.fullmatch(target):
+            raise GraphError(f"Invalid tag target for {name!r}")
+        item = {"commit": target,
+                "type": "annotated" if kind == "tag" else "lightweight"}
+        if kind == "tag":
+            item.update(tagger=tagger, date=date, message=subject)
+        tags[name] = item
+    return tags
+
+
 def find_base_branch(repo: Path, refs: dict[str, str], user_base: str | None) -> str:
     if user_base:
         if user_base not in refs:
@@ -191,6 +221,27 @@ def normalize_dataset(data: dict[str, Any], label: str) -> dict[str, Any]:
             if pid not in id_map:
                 raise GraphError(f"Missing parent {pid} of commit {sha}. "
                                  "Provide the complete history or explicitly mark a known boundary.")
+    tags = data.get("tags", {})
+    if not isinstance(tags, dict):
+        raise GraphError("Tags must be an object indexed by tag name")
+    clean_tags: dict[str, dict[str, str]] = {}
+    for name, item in tags.items():
+        if not isinstance(name, str) or not name or not isinstance(item, dict):
+            raise GraphError("Invalid tag name or record")
+        sha = item.get("commit")
+        kind = item.get("type")
+        if not isinstance(sha, str) or sha not in id_map:
+            raise GraphError(f"Tag {name!r} has no corresponding commit: {sha}")
+        if kind not in ("lightweight", "annotated"):
+            raise GraphError(f"Invalid tag type for {name!r}")
+        record = {"commit": sha, "type": kind}
+        for field in ("tagger", "date", "message"):
+            value = item.get(field)
+            if value is not None:
+                if not isinstance(value, str):
+                    raise GraphError(f"Invalid {field} for tag {name!r}")
+                record[field] = value
+        clean_tags[name] = record
     # Kahn cycle validation. Iterative so long linear histories cannot overflow.
     degree = {sha: len(node.get("parents", [])) for sha, node in id_map.items()}
     children: dict[str, list[str]] = {sha: [] for sha in id_map}
@@ -238,7 +289,7 @@ def normalize_dataset(data: dict[str, Any], label: str) -> dict[str, Any]:
         clean_nodes.append(node)
     normalized = dict(data)
     normalized.update(displayName=label, baseBranch=base,
-                      components=components, nodes=clean_nodes, refs=refs,
+                      components=components, nodes=clean_nodes, refs=refs, tags=clean_tags,
                       originUrl=safe_origin_url(data.get("originUrl")))
     return normalized
 
@@ -258,6 +309,10 @@ def dataset_from_git(repo: Path, days: int, cutoff: dt.datetime,
     if not active:
         active = {main: refs[main]}
     ids = reachable(active, commits)
+    # Scope tags to complete selected branch ancestry. Inactive branch tags
+    # become visible as well with --all-branches.
+    tags = {name: tag for name, tag in read_tags(repo).items()
+            if tag["commit"] in ids}
     # Reachable ancestry is complete, rather than inventing truncated parents.
     nodes = []
     for sha in ids:
@@ -274,7 +329,7 @@ def dataset_from_git(repo: Path, days: int, cutoff: dt.datetime,
     data = {"repo": label, "displayName": label,
             "originUrl": safe_origin_url(origin_url) if origin_url is not None else repo_origin_url(repo),
             "baseBranch": main,
-            "nodes": nodes, "refs": active, "days": days,
+            "nodes": nodes, "refs": active, "tags": tags, "days": days,
             "cutoffUtc": cutoff.isoformat(),
             "scope": "Branches with recent commits; complete ancestry retained to show their origins"}
     return normalize_dataset(data, label)
@@ -358,7 +413,8 @@ def main(argv: list[str] | None = None) -> int:
             args.also_json.write_text(json.dumps(datasets, ensure_ascii=False, indent=2), encoding="utf-8")
         for key, data in datasets.items():
             print(f"{data['displayName']}: {len(data['nodes'])} commits, "
-                  f"{len(data['refs'])} branches, {data['components']} component(s), "
+                  f"{len(data['refs'])} branches, {len(data['tags'])} tags, "
+                  f"{data['components']} component(s), "
                   f"primary={data['baseBranch']}")
         print(f"HTML generated: {args.output}")
         return 0
