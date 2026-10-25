@@ -126,6 +126,35 @@ jobs:
                   browser.close()
           PY
 
+      - name: Verify committed fictional demo and previews are up to date
+        run: |
+          python3 digitrail/scripts/generate_git_graph.py \
+            --input-json digitrail/examples/demo.json \
+            --output artifacts/demo-regenerated.html
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          base = Path("digitrail")
+          data = json.loads((base / "examples/demo.json").read_text())["repo0"]
+          assert len(data["nodes"]) == 23
+          assert len(data["refs"]) == 6
+          assert len(data["tags"]) == 6
+          assert data["originUrl"] == ""
+          actual = (base / "examples/demo.html").read_bytes()
+          expected = Path("artifacts/demo-regenerated.html").read_bytes()
+          assert actual == expected, "demo.html is not generated from current template/demo.json"
+          svg = (base / "docs/images/digitrail-preview.svg").read_text()
+          assert "ASSOCIATED REFERENCES" in svg
+          assert svg.count('class="ref-tag"') == 6
+          assert "v1.0.0" in svg and "docs-preview" in svg
+          png = (base / "docs/images/digitrail-preview.png").read_bytes()
+          assert png.startswith(b"\\x89PNG\\r\\n\\x1a\\n"), "Missing PNG header"
+          assert len(png) > 20000, "Preview PNG is unexpectedly small"
+          assert 'id="order-tag"' not in actual.decode()
+          assert "data-ref-visibility" in actual.decode()
+          print("PASS: demo HTML matches current generator; screenshot and SVG show six tags")
+          PY
+
       - name: Build standalone skill candidate
         run: python3 digitrail/scripts/package_skill.py --output artifacts/digitrail-skill.zip
 
