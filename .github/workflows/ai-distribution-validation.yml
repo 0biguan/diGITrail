@@ -1,0 +1,77 @@
+name: AI distribution validation
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout diGITrail PR (read only)
+        uses: actions/checkout@v4
+        with:
+          path: digitrail
+          persist-credentials: false
+
+      - name: Checkout pinned synthetic fixture (read only)
+        uses: actions/checkout@v4
+        with:
+          repository: 0biguan/diGITrail-sample
+          ref: d0cc925e28b46345ffcff12fda61e273a232cde0
+          fetch-depth: 0
+          path: digitrail-sample
+          persist-credentials: false
+
+      - name: Check regression tests
+        working-directory: digitrail
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Validate sample ancestry
+        run: python3 digitrail-sample/scripts/verify_topology.py digitrail-sample
+
+      - name: Render original CLI output for the sample
+        run: |
+          mkdir -p artifacts
+          python3 digitrail/scripts/generate_git_graph.py \
+            --repo digitrail-sample --days 30 --as-of 2026-10-26 \
+            --all-branches --remotes \
+            --also-json artifacts/sample.json \
+            --output artifacts/sample.html
+
+      - name: Assert graph completeness and self-contained report
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path("artifacts/sample.json").read_text())["repo0"]
+          nodes = {node["id"]: node for node in data["nodes"]}
+          assert data["baseBranch"] == "main", data["baseBranch"]
+          assert len(data["refs"]) >= 29, len(data["refs"])
+          assert len(nodes) >= 61, len(nodes)
+          assert any(len(node["parents"]) == 3 for node in nodes.values())
+          assert all(p["id"] in nodes for node in nodes.values() for p in node["parents"])
+          html = Path("artifacts/sample.html").read_text()
+          assert "__GIT_HISTORY_DATA__" not in html
+          assert "__GIT_HISTORY_TABS__" not in html
+          assert "Export SVG" in html
+          print("PASS: branch refs, parent graph, octopus merge and HTML")
+          PY
+
+      - name: Build standalone skill candidate
+        run: python3 digitrail/scripts/package_skill.py --output artifacts/digitrail-skill.zip
+
+      - name: Upload test artefacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: digitrail-ai-distribution-candidate
+          path: |
+            artifacts/digitrail-skill.zip
+            artifacts/sample.html
+            artifacts/sample.json
+          retention-days: 7
