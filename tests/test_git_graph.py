@@ -170,7 +170,7 @@ class GraphTests(unittest.TestCase):
         html = html_report({"repo0": data, "repo1": {**data, "displayName": "repo-2"}})
         with sync_playwright() as p:
             try:
-                browser = p.chromium.launch(executable_path="/usr/bin/chromium", headless=True,
+                browser = p.chromium.launch(headless=True,
                                              args=["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"])
             except Exception as exc:
                 self.skipTest("Local Chromium could not start: " + str(exc)[:200])
