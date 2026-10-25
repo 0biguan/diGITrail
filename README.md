@@ -1,166 +1,204 @@
 # diGITrail
 
-**Interactive Git history visualizer for AI agents and the command line.**
+**Interactive Git history graphs for AI agents and the command line.**
 
-Turn a Git repository into a single, portable HTML report. Explore branch forks, merges and commit ancestry in a GitKraken-style graph, with search, branch highlighting and SVG export. Runs locally with Python's standard library; the report works offline in your browser.
+diGITrail turns real Git commit ancestry into a **single, self-contained HTML report**. Explore forks, merges, branch names and Git tags with two detail levels, chronology reversal, search, branch highlighting, zoom, commit details and SVG export. The original Python generator and HTML template are shared by all three ways of using diGITrail.
 
-[Download ZIP](https://github.com/0biguan/diGITrail/archive/refs/heads/main.zip) · [Try the demo](#try-the-demo) · [Zero-install AI](#zero-install-ai-with-chatgpt-work) · [Quick start](#quick-start) · [Use as an agent skill](#use-as-an-agent-skill)
+![Current diGITrail interface showing the fictional demo's commits, branches, golden Git tags and All/Branches/Tags controls](docs/images/digitrail-preview.png)
 
-![diGITrail Structure view: a fictional sample app with six coloured branches, three merges, commit messages, branch labels and dates](docs/images/digitrail-preview.png)
+*Real output from the bundled renderer using the [fully fictional demo dataset](examples/demo.json): 23 commits, 6 branch references, 3 merge commits and 6 tags. The sample does not contain anyone's repository history. [Open the interactive demo](examples/demo.html) · [View the vector export](docs/images/digitrail-preview.svg).*
 
-*Actual graph output from the bundled renderer. This entirely fictional sample contains 23 commits, 6 branches and 3 merges. Structure view compresses it into 11 visible nodes. All names, identifiers, messages, dates and parent relationships were created for this example.*
+## Choose how to use diGITrail
 
-## Why diGITrail?
+| | **1. AI zero-install** | **2. Installed AI skill** | **3. Local Python CLI** |
+| --- | --- | --- | --- |
+| **Best for** | Asking an assistant to generate a report once, from GitHub URLs | Reusing diGITrail frequently without sharing its source URL each time | Running the generator yourself or scripting it |
+| **Setup on your computer** | None | Upload a skill ZIP to an eligible assistant environment | Download/clone diGITrail; have Git and Python 3.9+ |
+| **Who executes the generator?** | A capable AI cloud computer | The assistant's eligible execution environment | Your own computer |
+| **What must be accessible?** | Original source, full Git history, Python and Git | Installed skill files, full Git history, Python and Git | A local Git checkout or validated JSON input |
+| **Confirmed here** | **ChatGPT Work** | **Installed skill in ChatGPT Work** | **GitHub-hosted CLI regression tests** |
 
-- **Real Git ancestry:** connections follow ordered commit parents, preserving actual forks and merges.
-- **Readable branch history:** the primary branch stays in the first lane and every visible node has a full branch label.
-- **Git tags:** resolve lightweight and annotated tags to the correct commits; show gold tag labels alongside branch references, an independent tag count and an All/Branches/Tags visibility filter. Tagged commits remain visible in Structure view.
-- **Two levels of detail:** Structure view compresses linear chains; All commits shows every commit.
-- **Interactive exploration:** reverse chronology, search commits and tags, highlight a branch, zoom and inspect commit details (including tag metadata).
-- **Portable output:** share one self-contained HTML file or export the graph as SVG.
-- **Read-only and local:** the generator reads Git without changing your repository or starting CI. Reports need no server, CDN or third-party Python packages.
-- **Three usage modes:** zero-install AI in a capable cloud assistant, installed agent skill, or local CLI. All use the original renderer; multiple repositories can share one report.
+**Important compatibility boundary:** the two AI workflows were demonstrated in **ChatGPT Work**, not universally across ChatGPT. A standard Chat session could not access the installed skill, and a separate zero-install standard-Chat attempt could not transfer GitHub files into its Python environment. Other AI assistants (including Claude) **have not been tested**; they might work if they provide equivalent file, Git and code-execution access. See [certification and test limitations](docs/AI_CERTIFICATION.md).
 
-## Try the demo
+Jump to the method you want:
 
-1. [Download the repository ZIP](https://github.com/0biguan/diGITrail/archive/refs/heads/main.zip) and extract it.
-2. Open **`examples/demo.html`** in a modern browser. The prebuilt demo requires no Python installation.
-3. Switch between **Structure view** and **All commits**, reverse the order, search for `keyboard`, click a commit or select **Export SVG**.
+1. [AI zero-install: use a GitHub URL in ChatGPT Work](#1-ai-zero-install--chatgpt-work)
+2. [Installed AI skill: upload once and reuse](#2-installed-ai-skill)
+3. [Local Python CLI: run diGITrail yourself](#3-local-python-cli)
 
-The demo includes the complete interface and its controls. Its [fictional source data](examples/demo.json) and [regeneration instructions](examples/README.md) are included. The README image shows the graph area; a [vector version](docs/images/digitrail-preview.svg) is also available.
+## 1. AI zero-install — ChatGPT Work
 
-## Zero-install AI with ChatGPT Work
+Use this option if you want to **provide a source URL and a target GitHub repository and receive the original HTML without installing diGITrail**. No code or skill is installed on your own computer.
 
-**No local setup, no skill installation.** In a supported ChatGPT **Work** session, you can give the assistant the diGITrail source URL, the Git repository to analyse, and a time range. Work uses its own cloud computer to obtain the original code and verified Git history, runs the bundled Python generator, and returns a **standalone interactive HTML file**. Nothing needs to be installed on your own machine.
+### Requirements
 
-**Requirements and availability**
+- A **ChatGPT Work** session (or another assistant with equivalent capabilities) that can use a **network-enabled cloud computer/terminal**.
+- Permission to read the source and the Git repository being analysed; a public repository is easiest. Private repositories require separately authorised access. Never paste GitHub tokens into prompts.
+- A cloud environment able to run **Git** and **Python 3.9+**, obtain full commit ancestry and branch references, and execute diGITrail's actual Python generator and HTML template.
+- A browser to open the downloaded HTML. The report itself does not need internet access.
 
-- Use **ChatGPT Work** with access to a **network-enabled cloud computer/terminal**. Work availability and permissions depend on your ChatGPT account and workspace. Simply opening a normal chat or pasting an `SKILL.md` URL does not install or execute a skill automatically.
-- Work must be allowed to read the selected GitHub repositories, download the project files, and run **Git** and **Python 3.9+** in its cloud environment. The generator needs only the Python standard library. A modern browser is needed to open the resulting HTML.
-- The target must be accessible to the assistant. Public GitHub repositories are the simplest case; private ones need separately authorised access. Never place credentials or tokens inside a prompt.
-- The assistant must retrieve **complete Git ancestry and branch refs**, not a shallow checkout, and execute diGITrail's **original** `scripts/generate_git_graph.py` and `assets/template.html`. It must not reconstruct the chart with Mermaid or another renderer.
-- Git cloning into a **temporary cloud directory** is permitted for this workflow; it reads from GitHub but creates temporary files in Work. Do **not** push, alter remote refs, or trigger workflows. The output HTML is created in temporary cloud storage and can be downloaded from the chat.
+Opening a normal ChatGPT conversation and simply pasting the URL **does not** automatically install or make the skill available. Availability of Work/cloud-computer capabilities depends on account and workspace permissions.
 
-### Try it in a new Work conversation
+### Steps
 
-1. Open ChatGPT, start a **new Work conversation** (not a normal Chat session), and ensure cloud-computer/network access is available.
-2. Copy the prompt below. It deliberately points to the **experimental branch** so that the stable `main` version stays untouched.
-3. Work should return an HTML file. Open it in a browser and check **Structure view**, **All commits**, chronological reversal, branch search/highlighting, and **Export SVG**.
+1. Open a **new ChatGPT Work conversation**.
+2. Supply the diGITrail **source branch URL**, the target repository URL and the date range using the prompt below.
+3. Request an actual **downloadable HTML**. The assistant should use a full-history, read-only (towards GitHub) cloud checkout and the original renderer, not Mermaid or a reimplementation.
+4. Open the HTML in a browser. Check **Structure view**, **All commits**, the **All / Branches / Tags** label filter and **Export SVG**.
 
-> Use the **original diGITrail** from the experimental branch:
+### Copy-and-paste example
+
+> Use the **original diGITrail** from:
 >
 > https://github.com/0biguan/diGITrail/tree/feature/ai-distribution
 >
-> Generate a standalone interactive HTML Git history report for:
+> Generate a standalone interactive HTML report for:
 >
 > https://github.com/0biguan/diGITrail-sample
 >
-> Analyse **branch activity from 1 October 2026 (00:00 UTC) through the time of this request**. Do not use a rolling seven-day period. Keep all verified earlier ancestors needed to show genuine branch origins. Calculate the correct `--as-of` and `--days` parameters for the date-based activity cutoff; diGITrail's CLI does not currently have a `--since` option. Include remote branch refs available in the full checkout.
+> Show branch activity **from 1 October 2026 (00:00 UTC) through the time of this request**, including all remote branches and lightweight and annotated tags on their commit ancestry. Preserve verified earlier ancestors required to show genuine forks and merges.
 >
-> First read `SKILL.md` from that exact diGITrail branch. If your Work cloud computer has network access, retrieve the reviewed source and a **full-history** clone of the sample into isolated temporary cloud directories. Run the **original** `scripts/generate_git_graph.py` with its original HTML template and deliver the actual HTML file for download.
+> Read \`SKILL.md\` in the selected source branch. Obtain the reviewed source and a **full-history** Git checkout in temporary cloud directories; use the **original** \`scripts/generate_git_graph.py\` and \`assets/template.html\`. Calculate the appropriate \`--days\` and \`--as-of\` arguments because the CLI does not currently have a \`--since\` option; use \`--all-branches --remotes\` to include inactive remote branches. Return the actual self-contained HTML file.
 >
-> Do not install anything on my computer. Do not change either GitHub repository, push commits or tags, or run GitHub Actions. Do not use Mermaid or recreate diGITrail. If a required capability is missing, explain the specific limitation instead of inventing data or substituting another renderer.
+> Do not install software on my computer, push or change either repository, create tags, trigger GitHub Actions or substitute Mermaid or another graph renderer. If the environment cannot execute the original code or read complete Git data, explain the limitation without inventing a report.
 
-**What “from 1 October 2026” means:** the starting date selects branches with relevant **commit activity**; the renderer preserves their earlier reachable ancestors so forks and merges retain their genuine origins. Git does not reliably store branch creation dates. The report may therefore display older commits as ancestry context. For a graph that includes inactive branches too, explicitly ask for **all branches** (`--all-branches`).
+The date is deliberately **fixed at 1 October 2026**, rather than “the last seven days”. It selects activity, **not branch-creation dates**; earlier ancestral commits can still appear. A cloud clone only creates temporary **cloud-local** files and does not modify GitHub.
 
-**Tested scope (25 October 2026):** a user successfully generated the original HTML with ChatGPT Work. The resulting file was checked against the shipped HTML template and GitHub branch heads, and its interactive controls passed browser tests. See [AI certification results](docs/AI_CERTIFICATION.md) and [AI usage details](docs/AI_USAGE.md). This **does not guarantee** the same capabilities in every Work account or in ordinary ChatGPT; a standard-chat test failed because its Python environment could not access the required GitHub resources.
+**Validation:** zero-install was demonstrated in ChatGPT Work with the earlier tag-free interface; the updated tag-enabled CLI and browser behaviour have passed GitHub-hosted tests. The updated AI prompt remains subject to Work's actual permissions. [Detailed AI notes](docs/AI_USAGE.md).
 
-**Other AI assistants:** diGITrail's instructions and Python generator may also work in assistants such as **Claude**, provided they can retrieve the files and full Git history and execute the code. **No Claude or other-assistant test has been performed here.** Their compatibility and setup requirements are unknown, not ruled out.
+## 2. Installed AI skill
 
-## Quick start
+Use this option when an eligible assistant can **install diGITrail's packaged skill once** and reuse it by name. You still need Git access to the **target** repository, but you do not need to supply the diGITrail **source URL** in every prompt.
 
-**Requirements:** Python 3.9+ and Git, on Windows, Linux or macOS. The generator uses only the Python standard library. A modern browser opens the resulting report.
+### Requirements
 
-Download and extract the ZIP, or clone the project:
+- A ChatGPT account/workspace that offers **personal skill uploads** and makes those skills available in the execution mode you use. The user-tested combination was **an installed diGITrail skill in ChatGPT Work**. It was **not visible** to that user's ordinary Chat session.
+- Git and Python 3.9+ in the skill execution environment, or compatible verified Git input. Installation itself does not grant GitHub access or code execution.
+- The packaged skill ZIP, which contains the original \`SKILL.md\`, Python generator, HTML template, schema reference and noncommercial licence.
 
-```bash
-git clone https://github.com/0biguan/diGITrail.git
+### Obtain the skill ZIP
+
+**No development setup:** open the [most recent successful experimental GitHub Actions run](https://github.com/0biguan/diGITrail/actions/workflows/ai-distribution-validation.yml), choose a run from \`feature/ai-distribution\`, download its \`digitrail-ai-distribution-candidate\` artifact, **extract the outer artifact ZIP**, and locate **\`digitrail-skill.zip\`**. Artifacts have limited retention and are not permanent releases.
+
+**Alternatively**, in a downloaded diGITrail source checkout (Python 3.9+):
+
+\`\`\`bash
+python3 scripts/package_skill.py --output dist/digitrail-skill.zip
+\`\`\`
+
+### Install and try it
+
+1. Where supported in ChatGPT, navigate to **Plugins → Skills → Create → Upload from your computer**. The wording or availability may vary by account/workspace.
+2. Upload **\`digitrail-skill.zip\`** (not the outer GitHub Actions artifact ZIP). Follow the platform's security-review prompts; an upload can be refused.
+3. Confirm the installed skill is named **\`digitrail\`**. Start a **new Work session** in which the skill is accessible.
+4. Ask for the report without supplying the diGITrail **source** URL:
+
+> Use my **installed diGITrail skill** to generate a downloadable, standalone interactive HTML history for **https://github.com/0biguan/diGITrail-sample**.
+>
+> Include all remote branches and relevant Git tags, and show activity **from 1 October 2026 (00:00 UTC) through the time of this request**, retaining complete earlier ancestry. Use only the **original Python generator and HTML template from the installed skill**; do not download diGITrail's source again or recreate the graph. Do not modify GitHub or run workflows. If the installed skill is unavailable, tell me what is missing.
+
+Verify the same UI controls as in option 1. The previous installed-skill Work trial generated an authentic report, while a standard-Chat trial could not find the installed files. **Skill visibility is environment-specific**, not a guarantee attached to the account.
+
+## 3. Local Python CLI
+
+Use this option for direct control, offline generation from a repository already on your machine, reproducible inputs, or automation. It does **not** require ChatGPT.
+
+### Requirements and installation
+
+- Windows, macOS or Linux with **Python 3.9+** and **Git**.
+- A local Git checkout with **complete history** (not a shallow checkout), or a valid connector JSON file.
+- **No external Python packages** for the generator; Chromium/Playwright are only for optional browser tests and screenshots.
+
+Download the [experimental source ZIP](https://github.com/0biguan/diGITrail/archive/refs/heads/feature/ai-distribution.zip) or clone the experimental branch:
+
+\`\`\`bash
+git clone --branch feature/ai-distribution https://github.com/0biguan/diGITrail.git
 cd diGITrail
-```
+\`\`\`
 
-Generate a report for a local repository:
+### Generate a report
 
-```bash
-python3 scripts/generate_git_graph.py --repo /path/to/repository --days 7 --output git-history.html
-```
+\`\`\`bash
+python3 scripts/generate_git_graph.py \
+  --repo /path/to/your/repository \
+  --all-branches --remotes \
+  --output git-history.html \
+  --also-json git-history.json
+\`\`\`
 
-Windows PowerShell:
+On Windows PowerShell, use the launcher \`py\` instead of \`python3\`:
 
-```powershell
-py scripts/generate_git_graph.py --repo 'C:\path\to\repository' --days 7 --output git-history.html
-```
+\`\`\`powershell
+py scripts/generate_git_graph.py --repo 'C:\path\to\repository' --all-branches --remotes --output 'git-history.html'
+\`\`\`
 
-Open `git-history.html` in your browser. For a first run with the included example data:
+Open \`git-history.html\` in a modern browser. It is self-contained and works offline. This command reads the checkout without creating commits, branches, tags, or running GitHub workflows.
 
-```bash
-python3 scripts/generate_git_graph.py --input-json examples/demo.json --output git-history.html
-```
-
-Useful options:
-
-| Goal | Option |
+| CLI option | What it does |
 | --- | --- |
-| Include inactive branches | `--all-branches` |
-| Select a different primary branch | `--base master` |
-| Include remote refs already stored locally | `--remotes` |
-| Save validated source data alongside the report | `--also-json git-history.json` |
-| Use a reproducible reference date | `--as-of 2000-01-08` |
-| Combine repositories | Repeat `--repo` for each repository |
+| \`--days 7\` | Include branches with recent commit activity (default seven days) |
+| \`--as-of YYYY-MM-DD\` | Fix the reference date for reproducible results |
+| \`--all-branches\` | Include inactive branches, too |
+| \`--remotes\` | Include locally present remote-tracking references; **does not fetch** |
+| \`--base master\` | Select another primary branch |
+| \`--max-history 30000\` | Set the history limit; fail rather than truncate silently |
+| \`--also-json history.json\` | Export the validated graph source |
+| \`--input-json history.json\` | Generate HTML from verified JSON instead of local Git |
+| Repeat \`--repo\` | Display multiple repositories in one report |
 
-Run `python3 scripts/generate_git_graph.py --help` for all options. Use `py` instead of `python3` with the Windows Python launcher.
+To regenerate the completely fictional demo without touching a real repository:
 
-## Use as an agent skill
+\`\`\`bash
+python3 scripts/generate_git_graph.py --input-json examples/demo.json --output demo.html
+\`\`\`
 
-The internal skill name is **`digitrail`**. Keep [`SKILL.md`](SKILL.md), `scripts/`, `assets/` and `references/` together in the skill folder used by your assistant, following that environment's installation instructions. Downloading the repository alone does not install a skill in an account.
+Read [the connector input schema](references/data-format.md) or run \`python3 scripts/generate_git_graph.py --help\` for the complete CLI.
 
-Example requests:
+## Interactive demo and visual features
 
-> Use diGITrail to visualise the branches and merges in this repository with activity from 1 October 2026 through today, preserving the earlier ancestry needed to explain forks.
+[**Open the pre-generated HTML demo**](examples/demo.html) or download the experimental source ZIP and open \`examples/demo.html\` locally. There is no installation step for viewing the demo.
 
-> Generate an offline Git history report for these two local repositories, with main in the first lane.
+It uses fixed, **entirely fictional** commits from January 2000; six fictional tags illustrate lightweight, annotated and shared-commit tags. Try the **All / Branches / Tags** visibility filter, **Structure / All commits**, time reversal, searching for \`keyboard\` or \`v1.0.0\`, selecting a commit, and **Export SVG**.
 
-**Installed-skill trial (25 October 2026):** an eligible user installed the packaged skill and generated the original interactive HTML. The report's original template, 102 commits, 29 remote branches and Git ancestry were independently verified, and all 26 Chromium checks passed. Installation and cloud execution remain dependent on the user's ChatGPT plan and permissions. **Important:** the same user subsequently tried the installed skill in ordinary Chat; it was not exposed to that session and no report could be generated. The installed skill is confirmed working in **ChatGPT Work**, not ordinary Chat, in this test. See [certification evidence](docs/AI_CERTIFICATION.md).
+- **Actual ancestry:** edges come from ordered Git commit parents, never merely PR metadata.
+- **Structure view:** keeps branch tips, forks, merges, roots **and tagged commits** visible while collapsing other linear segments.
+- **Associated references:** branch labels keep their branch colours; **tags appear in gold**. The summary separates branch and tag counts.
+- **Tag types:** lightweight tags identify a commit directly; annotated tags can also provide a tagger, date and message. Both are resolved to the actual commit, with annotation details in the inspector.
+- **Read-only output:** the HTML needs no CDN, external JavaScript, fonts or live server.
+- **SVG export:** exports the graph with its currently displayed reference labels.
 
-The assistant needs access to Python and a local Git checkout, or complete, verified commit data from a connector. The [connector JSON format](references/data-format.md) documents the alternative input path.
+[Demo data](examples/demo.json) · [How to regenerate the demo and previews](examples/README.md) · [SVG preview](docs/images/digitrail-preview.svg).
 
-## How history is interpreted
+## Accuracy, security and limits
 
-The default seven-day window selects branch heads with recent **commit activity**. Complete reachable ancestry is retained to show where those branches forked, even when it extends beyond the window. Git does not normally record reliable branch creation dates. Tags are included only if their target commits are in the selected ancestry; `--all-branches` also includes tags on inactive branch histories. Lightweight and annotated tags have the same gold visual treatment, with annotated metadata in the detail view.
+Git does **not** reliably record a branch's creation time. A time window refers to **commit activity**; older ancestors remain available to explain forks. Shared commits can be visually associated with multiple branches. For annotated tags, the generator resolves the tag object to its target commit; only tags on commits retained by the selected ancestry appear.
 
-- Branch labels on shared commits are inferred visual associations. A commit may belong to the ancestry of several branches.
-- Graph edges use commit parent relationships. Pull request targets alone do not establish ancestry.
-- The default exploration limit is 30,000 commits. Generation stops if that limit is exceeded; adjust `--max-history` when appropriate.
-- Missing parents in a shallow clone are reported as incomplete history. Repositories can also legitimately contain multiple unrelated roots.
-- Reports embed commit messages, branch names and repository metadata. Review generated reports before sharing them publicly.
+The generator refuses incomplete parents or cycles in connector JSON; shallow checkouts can have incomplete ancestry. Large histories may reach the configured safety limit. Check outputs before sharing: commit messages and branch names from **your** repository are embedded in the HTML.
 
-## Project structure
+The AI methods depend on each assistant's actual access to repositories, skill files and code execution; do not assume all assistants or account plans behave the same way. **Other AI assistants, including Claude, are untested here—not known to be incompatible.** See [test evidence and scope](docs/AI_CERTIFICATION.md).
+
+## Project layout and contributing
 
 | Path | Purpose |
 | --- | --- |
-| [`SKILL.md`](SKILL.md) | Agent instructions and accuracy requirements |
-| [`scripts/generate_git_graph.py`](scripts/generate_git_graph.py) | Standalone Python CLI |
-| [`assets/template.html`](assets/template.html) | Self-contained report interface |
-| [`examples/`](examples/) | Fictional demo, editable JSON and reproduction guide |
-| [`docs/images/`](docs/images/) | Public preview image and vector export |
-| [`references/data-format.md`](references/data-format.md) | Connector input schema |
-| [`tests/`](tests/) | Local Git ancestry and optional browser regression tests |
-| [`.github/ISSUE_TEMPLATE/`](.github/ISSUE_TEMPLATE/) | Bug reports and feature suggestions |
+| [\`SKILL.md\`](SKILL.md) | Instructions used by AI agents |
+| [\`scripts/generate_git_graph.py\`](scripts/generate_git_graph.py) | Single production renderer, used by all three modes |
+| [\`scripts/package_skill.py\`](scripts/package_skill.py) | Deterministic installable skill ZIP builder |
+| [\`assets/template.html\`](assets/template.html) | Self-contained interactive HTML interface |
+| [\`examples/\`](examples/) | Fictional demo data, rendered HTML and regeneration guide |
+| [\`docs/images/\`](docs/images/) | Generated image and SVG previews |
+| [\`references/data-format.md\`](references/data-format.md) | Verified connector JSON and tags schema |
+| [\`tests/\`](tests/) | Git ancestry, tags, safety and Chromium regression tests |
+| [\`docs/AI_CERTIFICATION.md\`](docs/AI_CERTIFICATION.md) | Tested capabilities and limitations |
 
-## Contributing
+Contributions, issues and documentation improvements are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md). Run the tests with:
 
-Bug reports, documentation improvements and reproducible examples are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the development workflow and privacy guidelines for examples.
-
-```bash
+\`\`\`bash
 python3 -m unittest discover -s tests -v
-```
+\`\`\`
 
-The optional browser test uses a locally installed Chromium browser through Playwright. The generator does not require either package. No hosted CI is needed to run the tests.
+## Licence and commercial permissions
 
-## License and commercial permissions
-
-**diGITrail is source-available under the PolyForm Noncommercial License 1.0.0.**
-Personal and other uses permitted by the license are free. Commercial use is **not granted** by this license and requires separate written permission from the copyright holder. See [`LICENSE`](LICENSE) for the full binding terms. To enquire about a commercial license, contact the project owner through GitHub.
-
-This is a noncommercial software license, **not an OSI-approved open-source license**.
+diGITrail is **source-available under the PolyForm Noncommercial License 1.0.0**, not an OSI-approved open-source licence. Uses permitted by that licence are allowed; commercial use is **not granted** and requires separate written permission from the copyright holder. Read [\`LICENSE\`](LICENSE) for the binding terms.
 
 Required Notice: Copyright 2026 0biguan (https://github.com/0biguan/diGITrail)
