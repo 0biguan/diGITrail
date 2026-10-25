@@ -19,7 +19,9 @@ The demo is **real output from the original renderer**, driven by deliberately f
 
 ## Open and explore
 
-Open [`demo.html`](demo.html) directly in a modern browser; no server, Git or Python is needed to **view** it.
+Open the [**live interactive demo**](https://0biguan.github.io/diGITrail/) hosted by GitHub Pages. It loads `index.html` as a real webpage, unlike GitHub's source-code viewer for `demo.html`. You can also download `demo.html` from this repository and open it directly in a modern browser; no server, Git or Python is needed to **view** it.
+
+**Repository owner setup:** Enable `Settings → Pages → Build and deployment → Source: GitHub Actions` once, if it is not already enabled. The experimental `.github/workflows/deploy-demo-pages.yml` builds the site from the committed fictional demo. Until that setting is enabled and the deployment succeeds, the public link may return 404.
 
 Try **Structure view** and **All commits**; switch the **All / Branches / Tags** filter; search for `v1.0.0`, `docs-preview` or `keyboard`; reverse the chronology; open a tagged commit's details to view its type/annotation; export SVG.
 

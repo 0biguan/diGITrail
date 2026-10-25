@@ -1,0 +1,76 @@
+name: Publish fictional interactive demo
+
+on:
+  push:
+    branches: [feature/ai-distribution]
+    paths:
+      - .github/workflows/deploy-demo-pages.yml
+      - examples/demo.html
+      - examples/demo.json
+      - assets/template.html
+      - scripts/generate_git_graph.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: digitrail-demo-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: github.repository == '0biguan/diGITrail' && github.ref == 'refs/heads/feature/ai-distribution'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout experimental source (read-only)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Verify demo is the original current renderer output
+        run: |
+          python3 scripts/generate_git_graph.py --input-json examples/demo.json --output /tmp/digitrail-verified-demo.html
+          cmp /tmp/digitrail-verified-demo.html examples/demo.html
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          data = json.loads(Path("examples/demo.json").read_text())["repo0"]
+          assert len(data["nodes"]) == 23
+          assert len(data["refs"]) == 6
+          assert len(data["tags"]) == 6
+          assert not data.get("originUrl"), "Demo must be fully fictional"
+          html = Path("examples/demo.html").read_text()
+          assert 'data-ref-visibility="tags"' in html
+          assert "Export SVG" in html
+          assert 'id="order-tag"' not in html
+          PY
+
+      - name: Prepare public Pages document only
+        run: |
+          mkdir -p _site
+          cp examples/demo.html _site/index.html
+          touch _site/.nojekyll
+          test -s _site/index.html
+
+      - name: Upload verified static site
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    if: github.repository == '0biguan/diGITrail' && github.ref == 'refs/heads/feature/ai-distribution'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.publish.outputs.page_url }}
+    steps:
+      - name: Deploy interactive GitHub Pages demo
+        id: publish
+        uses: actions/deploy-pages@v4

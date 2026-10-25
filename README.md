@@ -6,7 +6,7 @@ diGITrail turns real Git commit ancestry into a **single, self-contained HTML re
 
 ![Current diGITrail interface showing the fictional demo's commits, branches, golden Git tags and All/Branches/Tags controls](docs/images/digitrail-preview.png)
 
-*Real output from the bundled renderer using the [fully fictional demo dataset](examples/demo.json): 23 commits, 6 branch references, 3 merge commits and 6 tags. The sample does not contain anyone's repository history. [Open the interactive demo](examples/demo.html) · [View the vector export](docs/images/digitrail-preview.svg).*
+*Real output from the bundled renderer using the [fully fictional demo dataset](examples/demo.json): 23 commits, 6 branch references, 3 merge commits and 6 tags. The sample does not contain anyone's repository history. [Open the interactive demo](https://0biguan.github.io/diGITrail/) · [View the vector export](docs/images/digitrail-preview.svg).*
 
 ## Choose how to use diGITrail
 
@@ -156,7 +156,7 @@ Read [the connector input schema](references/data-format.md) or run `python3 scr
 
 ## Interactive demo and visual features
 
-[**Open the pre-generated HTML demo**](examples/demo.html) or download the experimental source ZIP and open `examples/demo.html` locally. There is no installation step for viewing the demo.
+[**Open the live, interactive demo**](https://0biguan.github.io/diGITrail/) in your browser (served by GitHub Pages, with JavaScript enabled). Alternatively, download the source ZIP and open `examples/demo.html` locally. If the hosted page is unavailable, the repository owner must first enable **Settings → Pages → Source: GitHub Actions**; deployment is provided by `.github/workflows/deploy-demo-pages.yml`. There is no installation step for viewing the demo.
 
 It uses fixed, **entirely fictional** commits from January 2000; six fictional tags illustrate lightweight, annotated and shared-commit tags. Try the **All / Branches / Tags** visibility filter, **Structure / All commits**, time reversal, searching for `keyboard` or `v1.0.0`, selecting a commit, and **Export SVG**.
 
