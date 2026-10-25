@@ -1,5 +1,9 @@
 # diGITrail
 
+<p align="center">
+  <img src="docs/images/digitrail-icon.png" width="128" height="128" alt="diGITrail logo: colourful Git branches and commit nodes" />
+</p>
+
 **Interactive Git history graphs for AI agents and the command line.**
 
 diGITrail turns real Git commit ancestry into a **single, self-contained HTML report**. Explore forks, merges, branch names and Git tags with two detail levels, chronology reversal, search, branch highlighting, zoom, commit details and SVG export. The original Python generator and HTML template are shared by all three ways of using diGITrail.
