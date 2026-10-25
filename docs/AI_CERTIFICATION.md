@@ -152,6 +152,24 @@ that ChatGPT run's terminal logs, so the exact execution mechanism cannot
 be independently established from the HTML alone. Do not claim that
 installation or code execution will work for every ChatGPT plan or workspace.
 
+## Installed-skill test in ordinary Chat (2026-10-25)
+
+**FAIL: skill unavailable in the tested standard Chat session.**
+The user retried after a successful installed-skill test in ChatGPT Work.
+The ordinary Chat assistant reported:
+
+- Installed `digitrail` skill was not exposed to that execution environment.
+- `generate_git_graph.py` and the skill's source files were not found.
+- Git itself was installed, but the diGITrail generator was not run.
+- The assistant followed the read-only constraint; it did not download the
+  source from GitHub, replace the renderer, or launch workflows.
+
+**Interpretation:** this is an environment/skill-availability failure,
+not a renderer failure. Do not imply that the skill was uninstalled from the
+account or that standard Chat can never access skills. The evidence only
+establishes non-availability in the tested session. Work remains the
+successfully tested route for the installed skill.
+
 ## Manual acceptance tests still required
 
 - User-reported installed ChatGPT skill test succeeded; independently audited
