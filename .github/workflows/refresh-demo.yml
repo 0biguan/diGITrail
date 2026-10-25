@@ -1,0 +1,98 @@
+name: Refresh fictional demo previews
+
+on:
+  push:
+    branches: [feature/ai-distribution]
+    paths:
+      - .github/workflows/refresh-demo.yml
+      - examples/demo.json
+      - assets/template.html
+      - scripts/generate_git_graph.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    if: github.repository == '0biguan/diGITrail' && github.ref == 'refs/heads/feature/ai-distribution'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout experimental branch for generated demo assets
+        uses: actions/checkout@v4
+        with:
+          ref: feature/ai-distribution
+          persist-credentials: true
+
+      - name: Install Chromium for accurate browser preview
+        run: |
+          python3 -m pip install playwright==1.55.0
+          python3 -m playwright install --with-deps chromium
+
+      - name: Generate original interactive demo
+        run: |
+          python3 scripts/generate_git_graph.py --input-json examples/demo.json --output examples/demo.html
+
+      - name: Capture actual demo screenshot and SVG export
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          from playwright.sync_api import sync_playwright
+
+          payload = json.loads(Path("examples/demo.json").read_text(encoding="utf-8"))["repo0"]
+          assert payload["originUrl"] == ""
+          assert len(payload["nodes"]) == 23
+          assert len(payload["refs"]) == 6
+          assert len(payload["tags"]) == 6
+          assert sum(len(n["parents"]) > 1 for n in payload["nodes"]) == 3
+          html = Path("examples/demo.html").read_text(encoding="utf-8")
+          assert 'id="order-tag"' not in html
+          assert ">Read-only</span>" not in html
+          with sync_playwright() as p:
+              browser = p.chromium.launch(headless=True, args=["--no-sandbox"])
+              try:
+                  page = browser.new_page(viewport={"width": 1680, "height": 900},
+                                          device_scale_factor=1, accept_downloads=True)
+                  errors = []
+                  page.on("pageerror", lambda e: errors.append(str(e)))
+                  page.set_content(html, wait_until="load")
+                  assert page.locator("#countrefs").inner_text() == "6"
+                  assert page.locator("#counttags").inner_text() == "6"
+                  assert page.locator(".ref-tag").count() == 6
+                  assert page.locator(".commit-row").count() < 23
+                  assert page.locator(".tag-label").count() == 6
+                  assert page.locator("#graph .tag-label").first.is_visible()
+                  page.locator("#viewport").evaluate("(el) => el.scrollTop = 0")
+                  page.screenshot(path="docs/images/digitrail-preview.png", full_page=False)
+                  with page.expect_download() as file_info:
+                      page.locator("#download-svg").click()
+                  download = file_info.value
+                  download.save_as("docs/images/digitrail-preview.svg")
+                  svg = Path("docs/images/digitrail-preview.svg").read_text(encoding="utf-8")
+                  assert "ASSOCIATED REFERENCES" in svg
+                  assert "v1.0.0" in svg and "docs-preview" in svg
+                  assert svg.count('class="ref-tag"') == 6
+                  assert not errors, errors
+                  for mode in ["branches", "tags", "all"]:
+                      page.locator('[data-ref-visibility="' + mode + '"]').click()
+                  assert page.locator(".ref-tag").count() == 6
+                  page.locator('[data-mode="full"]').click()
+                  assert page.locator(".commit-row").count() == 23
+                  print("PASS: refreshed fictional demo, six tags, browser screenshot and SVG")
+              finally:
+                  browser.close()
+          PY
+
+      - name: Update only generated assets in experimental branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- examples/demo.html docs/images/digitrail-preview.png docs/images/digitrail-preview.svg
+          if ! git diff --cached --quiet; then
+            git commit -m "docs: refresh demo HTML and tag-enabled preview assets"
+            git push origin HEAD:refs/heads/feature/ai-distribution
+          else
+            echo "All generated previews are already current."
+          fi
