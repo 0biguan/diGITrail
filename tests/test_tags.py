@@ -159,7 +159,7 @@ class TagTests(unittest.TestCase):
                 page.locator('[data-mode="full"]').click()
                 self.assertEqual(page.locator(".commit-row").count(), 5)
                 page.locator("#flip-time").click()
-                self.assertIn("Oldest", page.locator("#order-description").inner_text())
+                self.assertIn("oldest at top", page.locator("#order-description").inner_text().lower())
                 page.locator("#find").fill("middle-light")
                 self.assertIn("1 matches", page.locator("#found").inner_text())
                 with page.expect_download() as download_info:
