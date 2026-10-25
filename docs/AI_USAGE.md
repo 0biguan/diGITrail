@@ -67,11 +67,15 @@ Avoid shallow sample checkouts. The output HTML belongs in a separate
 temporary results directory. Inspect the downloaded code before running it;
 pin a trusted commit when reproducibility matters.
 
-**Test outcome (2026-10-25):** a user reports that this prompt worked in a
-new ChatGPT Work conversation. That is a **successful user trial**, not yet
-independently inspected against the generated HTML and exact Git provenance.
-The ordinary ChatGPT chat remains unsuccessful. Work availability and cloud
-network permissions can vary.
+**Test outcome (2026-10-25):** A clean ChatGPT Work session successfully
+produced a standalone HTML report. The actual uploaded HTML was inspected:
+its generated structure matches the original `assets/template.html` exactly;
+all 29 published GitHub branch heads match; 102 commits and complete parent
+links are present; 19/19 Chromium UI checks passed with no JavaScript errors.
+See `docs/AI_CERTIFICATION.md` for the audit evidence and scope.
+The original Work terminal log has not been examined, and the standard
+ChatGPT chat attempt failed due to environment networking restrictions.
+Work availability and cloud permissions vary; do not claim universal support.
 
 Official references:
 - https://help.openai.com/en/articles/20001275-chatgpt-work-and-codex
