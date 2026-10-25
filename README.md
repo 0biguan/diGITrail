@@ -118,6 +118,8 @@ Example requests:
 
 > Generate an offline Git history report for these two local repositories, with main in the first lane.
 
+**Installed-skill trial (25 October 2026):** an eligible user installed the packaged skill and generated the original interactive HTML. The report's original template, 102 commits, 29 remote branches and Git ancestry were independently verified, and all 26 Chromium checks passed. Installation and cloud execution remain dependent on the user's ChatGPT plan and permissions. See [certification evidence](docs/AI_CERTIFICATION.md).
+
 The assistant needs access to Python and a local Git checkout, or complete, verified commit data from a connector. The [connector JSON format](references/data-format.md) documents the alternative input path.
 
 ## How history is interpreted

@@ -85,7 +85,7 @@ Official references:
 - https://help.openai.com/en/articles/20001275-chatgpt-work-and-codex
 - https://help.openai.com/en/articles/20001280-using-cloud-browser-in-chatgpt
 
-## 2. Installed skill (candidate package)
+## 2. Installed skill (successful user trial; account-dependent)
 
 Generate the ZIP from the repository without modifying production code:
 
@@ -103,8 +103,14 @@ Example after successful installation:
 > 0biguan/diGITrail-sample covering activity from 1 October 2026
 > through the time of this request, with full branch ancestry.
 
-The ZIP structure and embedded code are tested automatically; **acceptance by
-ChatGPT and end-to-end execution still require a separate manual test.**
+The ZIP structure and embedded code are tested automatically. **Observed
+test (2026-10-25):** a user installed the package into ChatGPT and
+generated an HTML report using the installed skill. The actual output was
+independently audited: it exactly matched the original shipped template,
+contained the same 102 authentic commits and 29 GitHub branch refs as the
+successful Work report, and passed **26/26 Chromium UI checks**, including
+SVG export. The originating ChatGPT terminal log was not inspected and
+availability varies by account. See `docs/AI_CERTIFICATION.md`.
 
 Official reference: https://help.openai.com/en/articles/20001066-skills-in-chatgpt
 

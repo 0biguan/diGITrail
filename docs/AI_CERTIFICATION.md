@@ -108,21 +108,65 @@ the same commit, so the UI shows 30 references for 29 remote branches.
 Tags are not displayed by the current renderer even when they exist on
 GitHub. These do not invalidate the tested branch/commit graph.
 
+## Installed ChatGPT skill: uploaded output audit (2026-10-25)
+
+**Result: successful user-reported installed-skill run; inspected HTML PASS.**
+The user reported installing the packaged diGITrail skill into ChatGPT and
+receiving `diGITrail-sample-history.html`, produced for
+`0biguan/diGITrail-sample` from 2026-10-01 00:00 UTC through
+2026-10-25 16:48 UTC. The assistant in that run reported using the
+skill's original Python generator/template, 29 remote branches and 102
+commits; its Chromium testing was blocked in that environment.
+
+The supplied HTML was independently audited:
+
+- Output size: **58,206 bytes**; SHA-256:
+  `ef8964916bc1b5516ac56da644c21ac2bfe5231e736800b8b175aa9b2ec43a89`.
+- After replacing only the embedded JSON payload and generated repository
+  tab with the source placeholders, the HTML **exactly matches**
+  `assets/template.html` from the experimental source branch.
+- Embedded records: **102 unique commits**, **115 verified ordered parent
+  relations**, **no missing parent nodes**, **one true root**, **13 merge
+  commits**, including an **octopus merge with three parents**.
+- **29 remote branch references** (26 distinct heads) were present and
+  all match the corresponding GitHub published branch SHA. The selected
+  primary branch is `origin/main`. Unlike the earlier Work report, the
+  installed-skill output does not duplicate it as a separate local `main`.
+- The embedded commit IDs, messages, dates and ordered parents match those
+  in the earlier successful zero-install Work report exactly. Its remote
+  branch name-to-SHA mapping is also identical.
+- **26/26 automated Chromium interaction checks passed** during an
+  independent audit, with no page JavaScript errors. Tests covered Structure
+  (49 nodes), All commits (102), actual SVG generation/export, chronological
+  reversal, filters/search, lane positioning, branch labels, highlighting,
+  zoom, details and working GitHub commit links.
+- The audit loaded the report's unmodified HTML content into Chromium using
+  the browser automation API; direct `file://` navigation was blocked by
+  the audit sandbox's administrative policy. This does **not** affect the
+  JavaScript interaction and SVG-export results.
+- Self-contained CSS, JavaScript and graph JSON; no CDN assets/scripts.
+
+**Provenance limit:** the HTML is verified as genuine diGITrail output and
+the user confirms the installed-skill workflow. We have **not** inspected
+that ChatGPT run's terminal logs, so the exact execution mechanism cannot
+be independently established from the HTML alone. Do not claim that
+installation or code execution will work for every ChatGPT plan or workspace.
+
 ## Manual acceptance tests still required
 
-- Upload the candidate ZIP to an eligible ChatGPT workspace and verify that
-  ChatGPT installs and invokes digitrail and delivers the real HTML.
-- A user reports a successful clean ChatGPT **Work** trial using both GitHub
-  URLs and the experimental branch. Obtain the actual generated HTML or the
-  Work run evidence to confirm code provenance and UI functionality.
+- User-reported installed ChatGPT skill test succeeded; independently audited
+  HTML matches original template and GitHub ancestry. Review terminal logs
+  if exact script invocation needs attestation; repeat on other supported
+  plans/workspaces before claiming broad compatibility.
+- ChatGPT Work zero-install output has already been independently audited.
+  Additional clean Work runs would assess reproducibility.
 - A separate ordinary ChatGPT chat failed because the Python environment
   could not download the source. Do not describe ordinary-chat zero-install
   as supported without a new successful test.
 - Repeat on each supported plan/surface; record any required GitHub connector,
   code-execution access, network restrictions, and failures.
-- Compare the output with the pinned CLI report, including parent edges,
-  branch names, both views, time order and SVG export. Browser interaction
-  is not yet automatically certified by this workflow.
+- CLI, Work and installed-skill reports have verified ancestry and template
+  consistency; further plan/surface checks remain outside this test scope.
 
 ## Promotion gate
 
