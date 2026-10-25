@@ -34,6 +34,46 @@ not establish ancestry. Missing parents cannot be invented or omitted silently.
 **Not certified:** a fresh, ordinary ChatGPT session accepting a bare GitHub
 URL and automatically completing all steps, or compatibility with every plan.
 
+### Best next test: ChatGPT Work with a network-enabled cloud computer
+
+A fresh, ordinary ChatGPT chat has already failed this experiment
+(2026-10-25): it could read SKILL.md but its Python shell could not resolve
+raw.githubusercontent.com, and it could not place complete source and Git
+ancestry into that Python environment. This is an **environment/transport**
+failure, not a renderer regression. Downloading ZIPs manually defeats the
+zero-install goal.
+
+A different test surface is **ChatGPT Work**. Work may provide a cloud
+computer, browser, terminal and network access, depending on plan and
+workspace controls. The user installs nothing on their own computer.
+
+In a new **Work** conversation, ask:
+
+> Use the original diGITrail from
+> https://github.com/0biguan/diGITrail/tree/feature/ai-distribution
+> to generate the standalone interactive HTML history for
+> https://github.com/0biguan/diGITrail-sample for the last 7 days.
+> Read SKILL.md from that exact source branch first. If Work has network-enabled
+> shell access, retrieve the verified project code and a **full-history** clone
+> of the sample into isolated temporary cloud directories. Execute the
+> original scripts/generate_git_graph.py with --remotes, and deliver the actual
+> generated HTML. Do not modify either GitHub repository, write remote refs,
+> launch Actions workflows, or substitute Mermaid. If cloud networking or
+> code execution is blocked, report the limitation precisely.
+
+The initial clone is read-only **with respect to GitHub**, but creates
+temporary files in the cloud computer, which is allowed in this mode.
+Avoid shallow sample checkouts. The output HTML belongs in a separate
+temporary results directory. Inspect the downloaded code before running it;
+pin a trusted commit when reproducibility matters.
+
+This Work path is **proposed, not yet successfully tested in an independent
+Work session**. Work availability and cloud-network permissions can vary.
+
+Official references:
+- https://help.openai.com/en/articles/20001275-chatgpt-work-and-codex
+- https://help.openai.com/en/articles/20001280-using-cloud-browser-in-chatgpt
+
 ## 2. Installed skill (candidate package)
 
 Generate the ZIP from the repository without modifying production code:
