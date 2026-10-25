@@ -3,7 +3,7 @@
 This document applies to the isolated AI-distribution experiment. The original
 command-line renderer remains unchanged.
 
-## 1. Zero-installation AI (capability-dependent, not yet certified)
+## 1. Zero-installation AI (ChatGPT Work: successful user trial)
 
 Provide the diGITrail source URL and a target repository URL:
 
@@ -67,8 +67,11 @@ Avoid shallow sample checkouts. The output HTML belongs in a separate
 temporary results directory. Inspect the downloaded code before running it;
 pin a trusted commit when reproducibility matters.
 
-This Work path is **proposed, not yet successfully tested in an independent
-Work session**. Work availability and cloud-network permissions can vary.
+**Test outcome (2026-10-25):** a user reports that this prompt worked in a
+new ChatGPT Work conversation. That is a **successful user trial**, not yet
+independently inspected against the generated HTML and exact Git provenance.
+The ordinary ChatGPT chat remains unsuccessful. Work availability and cloud
+network permissions can vary.
 
 Official references:
 - https://help.openai.com/en/articles/20001275-chatgpt-work-and-codex
