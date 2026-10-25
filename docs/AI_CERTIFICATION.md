@@ -67,6 +67,47 @@ this conversation. Do not classify it as broadly certified or assume that
 ordinary ChatGPT now works. Additional acceptance: examine the real HTML
 and repeat the same prompt in a second fresh Work session.
 
+## Independent audit of the actual Work HTML (2026-10-25)
+
+The user supplied the produced `diGITrail-sample-7days.html` for direct inspection.
+
+**Result: PASS for inspected output and interactive functionality.**
+
+- File size: 58,135 bytes; SHA-256:
+  `fc550f0848201c53c38dcad4fdc2ed8620b34544714ae1b4e38547c13bcc3834`.
+- After replacing the generated JSON payload and repo tab with their two
+  source placeholders, the submitted HTML matches the branch's original
+  `assets/template.html` **exactly** (31,267 characters). This verifies
+  reuse of the exact shipped renderer interface rather than Mermaid or an
+  independently recreated template.
+- Embedded graph: 102 unique commits, 115 parent references with no
+  missing targets, one root, 13 merges (including one three-parent octopus).
+- All 29 GitHub remote branch heads matched their published commit SHA.
+  The report has 30 branch refs because it additionally contains a local
+  `main` alongside `origin/main` at the same SHA; 26 unique heads.
+- Automated Chromium audit of the actual file: **19/19 checks passed**,
+  **zero JavaScript page errors**. Verified Structure mode (49 displayed
+  nodes), All commits (102), all branch labels, chronology reversal,
+  SHA search, branch highlighting, zoom, commit details, correct GitHub links,
+  and an actual SVG export download.
+- Output contains inline CSS/JavaScript/payload without external scripts or
+  CDN assets; works as a standalone browser document.
+- The file's embedded cutoff is
+  `2026-10-18T11:48:20.652115+00:00`, corresponding to the requested
+  seven-day window at report creation.
+
+**Scope of certification:** The user-reported fresh ChatGPT Work zero-install
+trial produced a technically valid diGITrail report using the exact shipped
+HTML template and matching GitHub refs. The original Work terminal/command
+history was not supplied, so invocation of the Python script cannot be
+independently attested from command logs. One successful Work run does not
+prove compatibility with ordinary ChatGPT or all Work configurations.
+
+**Minor observations:** The two refs `main` and `origin/main` refer to
+the same commit, so the UI shows 30 references for 29 remote branches.
+Tags are not displayed by the current renderer even when they exist on
+GitHub. These do not invalidate the tested branch/commit graph.
+
 ## Manual acceptance tests still required
 
 - Upload the candidate ZIP to an eligible ChatGPT workspace and verify that
