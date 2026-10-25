@@ -24,8 +24,8 @@ push tags, or launch mutating GitHub workflows.
 - Six representative branch walks also reached roots without missing parents.
 - The original renderer uses Python standard-library modules, a local HTML
   template and Git or validated connector JSON.
-- The current renderer has no tag rendering; the fixture's SCENARIOS.md
-  still described its tags as unpublished at the time of inspection.
+- At the start of this experiment, the renderer did not display tag labels;
+  that historical limitation has been resolved by the B+D change below.
 
 API inspection is not a substitute for executing the original renderer.
 
@@ -105,8 +105,9 @@ prove compatibility with ordinary ChatGPT or all Work configurations.
 
 **Minor observations:** The two refs `main` and `origin/main` refer to
 the same commit, so the UI shows 30 references for 29 remote branches.
-Tags are not displayed by the current renderer even when they exist on
-GitHub. These do not invalidate the tested branch/commit graph.
+The earlier (pre-B+D) HTML reports did not show tags. The new B+D version
+adds their labels and summary counts; these older reports remain valid as
+historical evidence for the prior version.
 
 ## Installed ChatGPT skill: uploaded output audit (2026-10-25)
 
@@ -169,6 +170,40 @@ not a renderer failure. Do not imply that the skill was uninstalled from the
 account or that standard Chat can never access skills. The evidence only
 establishes non-availability in the tested session. Work remains the
 successfully tested route for the installed skill.
+
+## Git tag B+D support — GitHub-hosted certification (2026-10-25)
+
+**Result: PASS at commit `a7bde8d25e630c49ab9812b82b7defa4c9c2922f`.**
+[Successful GitHub Actions run](https://github.com/0biguan/diGITrail/actions/runs/40217447900).
+
+- **19 Python regression tests passed**, including lightweight and annotated
+  tag resolution, multiple tags at one commit, connector JSON validation,
+  CLI/JSON roundtrip, malicious tag metadata escaping and Chromium tests.
+- **18 synthetic Git topology verifications passed** in the pinned
+  `0biguan/diGITrail-sample` fixture, unchanged by the test.
+- The original generator produced a self-contained HTML with **102 commits,
+  29 remote branch refs, 8 tags and one connected component**. Both tag
+  types were represented; every tag target SHA exists in the plotted DAG.
+- An additional **Chromium acceptance run on the actual sample HTML**
+  confirmed 8 visible tag pills in Structure view and in All commits,
+  an independent `29 branches / 8 tags` summary, working All/Branches/Tags
+  controls, unchanged graph node counts when filtering labels, chronology
+  reversal, tag search and real SVG export containing tag labels.
+- The obsolete `Newest at top` and `Read-only` upper-right chips are absent;
+  the actual chronology-reversal button remains.
+- The action saved `sample.html`, `sample.json`, `sample-tags.png`,
+  `sample-tags.svg` and the newly packaged `digitrail-skill.zip` as
+  temporary action artefacts. These are generated from the tested source.
+- The CLI, zero-install Work source path, and distributable skill share
+  `scripts/generate_git_graph.py`, `assets/template.html` and the
+  documented optional `tags` JSON schema.
+
+**Scope:** GitHub-hosted regression and browser execution are certified.
+The new skill ZIP and new B+D HTML have not been independently retested
+inside a new user ChatGPT Work/installed-skill conversation. Earlier
+Work/installed-skill results certify the previous tag-free renderer.
+Ordinary Chat skill visibility remains unavailable in the tested session.
+No merge into stable main has occurred.
 
 ## Manual acceptance tests still required
 
