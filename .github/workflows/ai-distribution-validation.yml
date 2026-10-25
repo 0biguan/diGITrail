@@ -148,7 +148,7 @@ jobs:
           assert svg.count('class="ref-tag"') == 6
           assert "v1.0.0" in svg and "docs-preview" in svg
           png = (base / "docs/images/digitrail-preview.png").read_bytes()
-          assert png.startswith(b"\\x89PNG\\r\\n\\x1a\\n"), "Missing PNG header"
+          assert png.startswith(bytes([137, 80, 78, 71, 13, 10, 26, 10])), "Missing PNG header"
           assert len(png) > 20000, "Preview PNG is unexpectedly small"
           assert 'id="order-tag"' not in actual.decode()
           assert "data-ref-visibility" in actual.decode()
