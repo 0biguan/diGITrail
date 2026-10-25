@@ -58,7 +58,7 @@ Opening a normal ChatGPT conversation and simply pasting the URL **does not** au
 >
 > Show branch activity **from 1 October 2026 (00:00 UTC) through the time of this request**, including all remote branches and lightweight and annotated tags on their commit ancestry. Preserve verified earlier ancestors required to show genuine forks and merges.
 >
-> Read \`SKILL.md\` in the selected source branch. Obtain the reviewed source and a **full-history** Git checkout in temporary cloud directories; use the **original** \`scripts/generate_git_graph.py\` and \`assets/template.html\`. Calculate the appropriate \`--days\` and \`--as-of\` arguments because the CLI does not currently have a \`--since\` option; use \`--all-branches --remotes\` to include inactive remote branches. Return the actual self-contained HTML file.
+> Read `SKILL.md` in the selected source branch. Obtain the reviewed source and a **full-history** Git checkout in temporary cloud directories; use the **original** `scripts/generate_git_graph.py` and `assets/template.html`. Calculate the appropriate `--days` and `--as-of` arguments because the CLI does not currently have a `--since` option; use `--all-branches --remotes` to include inactive remote branches. Return the actual self-contained HTML file.
 >
 > Do not install software on my computer, push or change either repository, create tags, trigger GitHub Actions or substitute Mermaid or another graph renderer. If the environment cannot execute the original code or read complete Git data, explain the limitation without inventing a report.
 
@@ -74,23 +74,23 @@ Use this option when an eligible assistant can **install diGITrail's packaged sk
 
 - A ChatGPT account/workspace that offers **personal skill uploads** and makes those skills available in the execution mode you use. The user-tested combination was **an installed diGITrail skill in ChatGPT Work**. It was **not visible** to that user's ordinary Chat session.
 - Git and Python 3.9+ in the skill execution environment, or compatible verified Git input. Installation itself does not grant GitHub access or code execution.
-- The packaged skill ZIP, which contains the original \`SKILL.md\`, Python generator, HTML template, schema reference and noncommercial licence.
+- The packaged skill ZIP, which contains the original `SKILL.md`, Python generator, HTML template, schema reference and noncommercial licence.
 
 ### Obtain the skill ZIP
 
-**No development setup:** open the [most recent successful experimental GitHub Actions run](https://github.com/0biguan/diGITrail/actions/workflows/ai-distribution-validation.yml), choose a run from \`feature/ai-distribution\`, download its \`digitrail-ai-distribution-candidate\` artifact, **extract the outer artifact ZIP**, and locate **\`digitrail-skill.zip\`**. Artifacts have limited retention and are not permanent releases.
+**No development setup:** open the [most recent successful experimental GitHub Actions run](https://github.com/0biguan/diGITrail/actions/workflows/ai-distribution-validation.yml), choose a run from `feature/ai-distribution`, download its `digitrail-ai-distribution-candidate` artifact, **extract the outer artifact ZIP**, and locate **`digitrail-skill.zip`**. Artifacts have limited retention and are not permanent releases.
 
 **Alternatively**, in a downloaded diGITrail source checkout (Python 3.9+):
 
-\`\`\`bash
+```bash
 python3 scripts/package_skill.py --output dist/digitrail-skill.zip
-\`\`\`
+```
 
 ### Install and try it
 
 1. Where supported in ChatGPT, navigate to **Plugins → Skills → Create → Upload from your computer**. The wording or availability may vary by account/workspace.
-2. Upload **\`digitrail-skill.zip\`** (not the outer GitHub Actions artifact ZIP). Follow the platform's security-review prompts; an upload can be refused.
-3. Confirm the installed skill is named **\`digitrail\`**. Start a **new Work session** in which the skill is accessible.
+2. Upload **`digitrail-skill.zip`** (not the outer GitHub Actions artifact ZIP). Follow the platform's security-review prompts; an upload can be refused.
+3. Confirm the installed skill is named **`digitrail`**. Start a **new Work session** in which the skill is accessible.
 4. Ask for the report without supplying the diGITrail **source** URL:
 
 > Use my **installed diGITrail skill** to generate a downloadable, standalone interactive HTML history for **https://github.com/0biguan/diGITrail-sample**.
@@ -111,54 +111,54 @@ Use this option for direct control, offline generation from a repository already
 
 Download the [experimental source ZIP](https://github.com/0biguan/diGITrail/archive/refs/heads/feature/ai-distribution.zip) or clone the experimental branch:
 
-\`\`\`bash
+```bash
 git clone --branch feature/ai-distribution https://github.com/0biguan/diGITrail.git
 cd diGITrail
-\`\`\`
+```
 
 ### Generate a report
 
-\`\`\`bash
+```bash
 python3 scripts/generate_git_graph.py \
   --repo /path/to/your/repository \
   --all-branches --remotes \
   --output git-history.html \
   --also-json git-history.json
-\`\`\`
+```
 
-On Windows PowerShell, use the launcher \`py\` instead of \`python3\`:
+On Windows PowerShell, use the launcher `py` instead of `python3`:
 
-\`\`\`powershell
+```powershell
 py scripts/generate_git_graph.py --repo 'C:\path\to\repository' --all-branches --remotes --output 'git-history.html'
-\`\`\`
+```
 
-Open \`git-history.html\` in a modern browser. It is self-contained and works offline. This command reads the checkout without creating commits, branches, tags, or running GitHub workflows.
+Open `git-history.html` in a modern browser. It is self-contained and works offline. This command reads the checkout without creating commits, branches, tags, or running GitHub workflows.
 
 | CLI option | What it does |
 | --- | --- |
-| \`--days 7\` | Include branches with recent commit activity (default seven days) |
-| \`--as-of YYYY-MM-DD\` | Fix the reference date for reproducible results |
-| \`--all-branches\` | Include inactive branches, too |
-| \`--remotes\` | Include locally present remote-tracking references; **does not fetch** |
-| \`--base master\` | Select another primary branch |
-| \`--max-history 30000\` | Set the history limit; fail rather than truncate silently |
-| \`--also-json history.json\` | Export the validated graph source |
-| \`--input-json history.json\` | Generate HTML from verified JSON instead of local Git |
-| Repeat \`--repo\` | Display multiple repositories in one report |
+| `--days 7` | Include branches with recent commit activity (default seven days) |
+| `--as-of YYYY-MM-DD` | Fix the reference date for reproducible results |
+| `--all-branches` | Include inactive branches, too |
+| `--remotes` | Include locally present remote-tracking references; **does not fetch** |
+| `--base master` | Select another primary branch |
+| `--max-history 30000` | Set the history limit; fail rather than truncate silently |
+| `--also-json history.json` | Export the validated graph source |
+| `--input-json history.json` | Generate HTML from verified JSON instead of local Git |
+| Repeat `--repo` | Display multiple repositories in one report |
 
 To regenerate the completely fictional demo without touching a real repository:
 
-\`\`\`bash
+```bash
 python3 scripts/generate_git_graph.py --input-json examples/demo.json --output demo.html
-\`\`\`
+```
 
-Read [the connector input schema](references/data-format.md) or run \`python3 scripts/generate_git_graph.py --help\` for the complete CLI.
+Read [the connector input schema](references/data-format.md) or run `python3 scripts/generate_git_graph.py --help` for the complete CLI.
 
 ## Interactive demo and visual features
 
-[**Open the pre-generated HTML demo**](examples/demo.html) or download the experimental source ZIP and open \`examples/demo.html\` locally. There is no installation step for viewing the demo.
+[**Open the pre-generated HTML demo**](examples/demo.html) or download the experimental source ZIP and open `examples/demo.html` locally. There is no installation step for viewing the demo.
 
-It uses fixed, **entirely fictional** commits from January 2000; six fictional tags illustrate lightweight, annotated and shared-commit tags. Try the **All / Branches / Tags** visibility filter, **Structure / All commits**, time reversal, searching for \`keyboard\` or \`v1.0.0\`, selecting a commit, and **Export SVG**.
+It uses fixed, **entirely fictional** commits from January 2000; six fictional tags illustrate lightweight, annotated and shared-commit tags. Try the **All / Branches / Tags** visibility filter, **Structure / All commits**, time reversal, searching for `keyboard` or `v1.0.0`, selecting a commit, and **Export SVG**.
 
 - **Actual ancestry:** edges come from ordered Git commit parents, never merely PR metadata.
 - **Structure view:** keeps branch tips, forks, merges, roots **and tagged commits** visible while collapsing other linear segments.
@@ -181,24 +181,24 @@ The AI methods depend on each assistant's actual access to repositories, skill f
 
 | Path | Purpose |
 | --- | --- |
-| [\`SKILL.md\`](SKILL.md) | Instructions used by AI agents |
-| [\`scripts/generate_git_graph.py\`](scripts/generate_git_graph.py) | Single production renderer, used by all three modes |
-| [\`scripts/package_skill.py\`](scripts/package_skill.py) | Deterministic installable skill ZIP builder |
-| [\`assets/template.html\`](assets/template.html) | Self-contained interactive HTML interface |
-| [\`examples/\`](examples/) | Fictional demo data, rendered HTML and regeneration guide |
-| [\`docs/images/\`](docs/images/) | Generated image and SVG previews |
-| [\`references/data-format.md\`](references/data-format.md) | Verified connector JSON and tags schema |
-| [\`tests/\`](tests/) | Git ancestry, tags, safety and Chromium regression tests |
-| [\`docs/AI_CERTIFICATION.md\`](docs/AI_CERTIFICATION.md) | Tested capabilities and limitations |
+| [`SKILL.md`](SKILL.md) | Instructions used by AI agents |
+| [`scripts/generate_git_graph.py`](scripts/generate_git_graph.py) | Single production renderer, used by all three modes |
+| [`scripts/package_skill.py`](scripts/package_skill.py) | Deterministic installable skill ZIP builder |
+| [`assets/template.html`](assets/template.html) | Self-contained interactive HTML interface |
+| [`examples/`](examples/) | Fictional demo data, rendered HTML and regeneration guide |
+| [`docs/images/`](docs/images/) | Generated image and SVG previews |
+| [`references/data-format.md`](references/data-format.md) | Verified connector JSON and tags schema |
+| [`tests/`](tests/) | Git ancestry, tags, safety and Chromium regression tests |
+| [`docs/AI_CERTIFICATION.md`](docs/AI_CERTIFICATION.md) | Tested capabilities and limitations |
 
 Contributions, issues and documentation improvements are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md). Run the tests with:
 
-\`\`\`bash
+```bash
 python3 -m unittest discover -s tests -v
-\`\`\`
+```
 
 ## Licence and commercial permissions
 
-diGITrail is **source-available under the PolyForm Noncommercial License 1.0.0**, not an OSI-approved open-source licence. Uses permitted by that licence are allowed; commercial use is **not granted** and requires separate written permission from the copyright holder. Read [\`LICENSE\`](LICENSE) for the binding terms.
+diGITrail is **source-available under the PolyForm Noncommercial License 1.0.0**, not an OSI-approved open-source licence. Uses permitted by that licence are allowed; commercial use is **not granted** and requires separate written permission from the copyright holder. Read [`LICENSE`](LICENSE) for the binding terms.
 
 Required Notice: Copyright 2026 0biguan (https://github.com/0biguan/diGITrail)
