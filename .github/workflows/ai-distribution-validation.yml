@@ -77,6 +77,55 @@ jobs:
           print("PASS: refs, eight tagged commits, octopus merge and HTML")
           PY
 
+      - name: Interactive browser acceptance of all eight published tags
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+          html = Path("artifacts/sample.html").read_text(encoding="utf-8")
+          with sync_playwright() as p:
+              browser = p.chromium.launch(headless=True, args=["--no-sandbox"])
+              try:
+                  page = browser.new_page(viewport={"width": 1440, "height": 860},
+                                          accept_downloads=True)
+                  errors = []
+                  page.on("pageerror", lambda e: errors.append(str(e)))
+                  page.set_content(html)
+                  assert page.locator("#countrefs").inner_text() == "29"
+                  assert page.locator("#counttags").inner_text() == "8"
+                  assert page.locator("#order-tag").count() == 0
+                  assert page.get_by_text("Read-only", exact=True).count() == 0
+                  assert page.locator(".ref-tag").count() == 8
+                  assert page.locator("#graph .commit-row").count() < 102
+                  structure_rows = page.locator("#graph .commit-row").count()
+                  page.locator('[data-ref-visibility="branches"]').click()
+                  assert page.locator(".ref-tag").count() == 0
+                  assert page.locator("#graph .commit-row").count() == structure_rows
+                  page.locator('[data-ref-visibility="tags"]').click()
+                  assert page.locator(".ref-tag").count() == 8
+                  assert page.locator(".branch-label").count() == 0
+                  assert page.locator("#graph .commit-row").count() == structure_rows
+                  page.locator('[data-ref-visibility="all"]').click()
+                  page.screenshot(path="artifacts/sample-tags.png", full_page=False)
+                  page.locator('[data-mode="full"]').click()
+                  assert page.locator(".commit-row").count() == 102
+                  assert page.locator(".ref-tag").count() == 8
+                  page.locator("#flip-time").click()
+                  assert "oldest at top" in page.locator("#order-description").inner_text().lower()
+                  page.locator("#find").fill("v1.0.0")
+                  assert "matches" in page.locator("#found").inner_text()
+                  with page.expect_download() as download_info:
+                      page.locator("#download-svg").click()
+                  download = download_info.value
+                  download.save_as("artifacts/sample-tags.svg")
+                  svg = Path("artifacts/sample-tags.svg").read_text(encoding="utf-8")
+                  assert "v1.0.0" in svg and "tag-label" in svg
+                  assert not errors, errors
+                  print("PASS: eight tagged refs, two graph modes, filter, time, search, SVG")
+              finally:
+                  browser.close()
+          PY
+
       - name: Build standalone skill candidate
         run: python3 digitrail/scripts/package_skill.py --output artifacts/digitrail-skill.zip
 
@@ -88,4 +137,6 @@ jobs:
             artifacts/digitrail-skill.zip
             artifacts/sample.html
             artifacts/sample.json
+            artifacts/sample-tags.png
+            artifacts/sample-tags.svg
           retention-days: 7
