@@ -58,19 +58,25 @@ zero-install use.
 - A recommendation to manually upload ZIP files would not meet the user's
   zero-install acceptance condition.
 
-**Next experiment:** independent new **ChatGPT Work** session with a
-network-enabled cloud computer. The experimental SKILL.md explicitly permits
-read-only full-history Git clones inside temporary cloud storage for this path.
-Acceptance requires a real generated HTML and no remote GitHub writes.
-No Work result has yet been verified.
+**Follow-up Work result (2026-10-25): user-reported SUCCESS.** The user
+confirmed that the fresh ChatGPT Work experiment using the experimental
+branch prompt worked. This is evidence that the Work zero-install path is
+feasible in that user's environment, but the HTML file, executed commands,
+and Git relationship fidelity have not been independently inspected in
+this conversation. Do not classify it as broadly certified or assume that
+ordinary ChatGPT now works. Additional acceptance: examine the real HTML
+and repeat the same prompt in a second fresh Work session.
 
 ## Manual acceptance tests still required
 
 - Upload the candidate ZIP to an eligible ChatGPT workspace and verify that
   ChatGPT installs and invokes digitrail and delivers the real HTML.
-- In a clean ChatGPT conversation with no prior diGITrail files, provide only
-  the two GitHub URLs and the time window. Verify that actual SKILL.md, code,
-  and template were read and used, and that the generated HTML opens.
+- A user reports a successful clean ChatGPT **Work** trial using both GitHub
+  URLs and the experimental branch. Obtain the actual generated HTML or the
+  Work run evidence to confirm code provenance and UI functionality.
+- A separate ordinary ChatGPT chat failed because the Python environment
+  could not download the source. Do not describe ordinary-chat zero-install
+  as supported without a new successful test.
 - Repeat on each supported plan/surface; record any required GitHub connector,
   code-execution access, network restrictions, and failures.
 - Compare the output with the pinned CLI report, including parent edges,
