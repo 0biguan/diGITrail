@@ -170,7 +170,7 @@ class GraphTests(unittest.TestCase):
         html = html_report({"repo0": data, "repo1": {**data, "displayName": "repo-2"}})
         with sync_playwright() as p:
             try:
-                browser = p.chromium.launch(executable_path="/usr/bin/chromium", headless=True,
+                browser = p.chromium.launch(headless=True,
                                              args=["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"])
             except Exception as exc:
                 self.skipTest("Local Chromium could not start: " + str(exc)[:200])
@@ -181,18 +181,18 @@ class GraphTests(unittest.TestCase):
                 page.set_content(html, wait_until="load", timeout=30000)
                 self.assertEqual(page.title(), 'diGITrail · Git Branch History')
                 self.assertIn('Branch & Commit History', page.locator('h1').inner_text())
-                self.assertIn('Newest', page.locator('#order-tag').inner_text())
+                self.assertIn('newest', page.locator('#order-description').inner_text().lower())
                 for tab in ("repo0", "repo1"):
                     page.locator(f'button[data-repo="{tab}"]').click()
                     for mode in ("summary", "full"):
                         page.locator(f'button[data-mode="{mode}"]').click()
-                        if 'Oldest' in page.locator('#order-tag').inner_text():
+                        if 'oldest at top' in page.locator('#order-description').inner_text().lower():
                             page.locator('#flip-time').click()
                         for orientation in range(2):
                             if orientation:
                                 page.locator("#flip-time").click()
-                            self.assertIn('Oldest' if orientation else 'Newest',
-                                          page.locator('#order-tag').inner_text())
+                            self.assertIn('oldest at top' if orientation else 'newest at top',
+                                          page.locator('#order-description').inner_text().lower())
                             self.assertFalse(errors, errors)
                             self.assertEqual(page.locator(".commit-row").count(),
                                              6 if mode == "full" else 4)

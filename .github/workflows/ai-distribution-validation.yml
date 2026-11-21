@@ -1,0 +1,173 @@
+name: AI distribution validation
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout diGITrail PR (read only)
+        uses: actions/checkout@v4
+        with:
+          path: digitrail
+          persist-credentials: false
+
+      - name: Checkout pinned synthetic fixture (read only)
+        uses: actions/checkout@v4
+        with:
+          repository: 0biguan/diGITrail-sample
+          ref: d0cc925e28b46345ffcff12fda61e273a232cde0
+          fetch-depth: 0
+          path: digitrail-sample
+          persist-credentials: false
+
+      - name: Install Chromium for interactive regression (CI only)
+        run: |
+          python3 -m pip install playwright==1.55.0
+          python3 -m playwright install --with-deps chromium
+
+      - name: Check regression tests
+        working-directory: digitrail
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Validate sample ancestry
+        run: python3 digitrail-sample/scripts/verify_topology.py digitrail-sample
+
+      - name: Render original CLI output for the sample
+        run: |
+          mkdir -p artifacts
+          python3 digitrail/scripts/generate_git_graph.py \
+            --repo digitrail-sample --days 30 --as-of 2026-10-26 \
+            --all-branches --remotes \
+            --also-json artifacts/sample.json \
+            --output artifacts/sample.html
+
+      - name: Assert graph completeness and self-contained report
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          data = json.loads(Path("artifacts/sample.json").read_text())["repo0"]
+          nodes = {node["id"]: node for node in data["nodes"]}
+          assert data["baseBranch"] in ("main", "origin/main"), data["baseBranch"]
+          assert len(data["refs"]) >= 29, len(data["refs"])
+          assert len(nodes) >= 61, len(nodes)
+          assert any(len(node["parents"]) == 3 for node in nodes.values())
+          assert all(p["id"] in nodes for node in nodes.values() for p in node["parents"])
+          tags = data["tags"]
+          assert len(tags) == 8, (len(tags), list(tags))
+          assert set(t["type"] for t in tags.values()) == {"annotated", "lightweight"}
+          assert all(t["commit"] in nodes for t in tags.values())
+          assert "v1.0.0" in tags and "test/root-lightweight" in tags
+          html = Path("artifacts/sample.html").read_text()
+          assert "__GIT_HISTORY_DATA__" not in html
+          assert "__GIT_HISTORY_TABS__" not in html
+          assert "Export SVG" in html
+          assert "ASSOCIATED REFERENCES" in html
+          assert 'data-ref-visibility="tags"' in html
+          assert 'id="order-tag"' not in html
+          assert ">Read-only</span>" not in html
+          print("PASS: refs, eight tagged commits, octopus merge and HTML")
+          PY
+
+      - name: Interactive browser acceptance of all eight published tags
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from playwright.sync_api import sync_playwright
+          html = Path("artifacts/sample.html").read_text(encoding="utf-8")
+          with sync_playwright() as p:
+              browser = p.chromium.launch(headless=True, args=["--no-sandbox"])
+              try:
+                  page = browser.new_page(viewport={"width": 1440, "height": 860},
+                                          accept_downloads=True)
+                  errors = []
+                  page.on("pageerror", lambda e: errors.append(str(e)))
+                  page.set_content(html)
+                  assert page.locator("#countrefs").inner_text() == "29"
+                  assert page.locator("#counttags").inner_text() == "8"
+                  assert page.locator("#order-tag").count() == 0
+                  assert page.get_by_text("Read-only", exact=True).count() == 0
+                  assert page.locator(".ref-tag").count() == 8
+                  assert page.locator("#graph .commit-row").count() < 102
+                  structure_rows = page.locator("#graph .commit-row").count()
+                  page.locator('[data-ref-visibility="branches"]').click()
+                  assert page.locator(".ref-tag").count() == 0
+                  assert page.locator("#graph .commit-row").count() == structure_rows
+                  page.locator('[data-ref-visibility="tags"]').click()
+                  assert page.locator(".ref-tag").count() == 8
+                  assert page.locator(".branch-label").count() == 0
+                  assert page.locator("#graph .commit-row").count() == structure_rows
+                  page.locator('[data-ref-visibility="all"]').click()
+                  page.screenshot(path="artifacts/sample-tags.png", full_page=False)
+                  page.locator('[data-mode="full"]').click()
+                  assert page.locator(".commit-row").count() == 102
+                  assert page.locator(".ref-tag").count() == 8
+                  page.locator("#flip-time").click()
+                  assert "oldest at top" in page.locator("#order-description").inner_text().lower()
+                  page.locator("#find").fill("v1.0.0")
+                  assert "matches" in page.locator("#found").inner_text()
+                  with page.expect_download() as download_info:
+                      page.locator("#download-svg").click()
+                  download = download_info.value
+                  download.save_as("artifacts/sample-tags.svg")
+                  svg = Path("artifacts/sample-tags.svg").read_text(encoding="utf-8")
+                  assert "v1.0.0" in svg and "tag-label" in svg
+                  assert not errors, errors
+                  print("PASS: eight tagged refs, two graph modes, filter, time, search, SVG")
+              finally:
+                  browser.close()
+          PY
+
+      - name: Verify committed fictional demo and previews are up to date
+        run: |
+          python3 digitrail/scripts/generate_git_graph.py \
+            --input-json digitrail/examples/demo.json \
+            --output artifacts/demo-regenerated.html
+          python3 - <<'PY'
+          from pathlib import Path
+          import json
+          base = Path("digitrail")
+          data = json.loads((base / "examples/demo.json").read_text())["repo0"]
+          assert len(data["nodes"]) == 23
+          assert len(data["refs"]) == 6
+          assert len(data["tags"]) == 6
+          assert data["originUrl"] == ""
+          actual = (base / "examples/demo.html").read_bytes()
+          expected = Path("artifacts/demo-regenerated.html").read_bytes()
+          assert actual == expected, "demo.html is not generated from current template/demo.json"
+          svg = (base / "docs/images/digitrail-preview.svg").read_text()
+          assert "ASSOCIATED REFERENCES" in svg
+          assert svg.count('class="ref-tag"') == 6
+          assert "v1.0.0" in svg and "docs-preview" in svg
+          png = (base / "docs/images/digitrail-preview.png").read_bytes()
+          assert png.startswith(bytes([137, 80, 78, 71, 13, 10, 26, 10])), "Missing PNG header"
+          assert len(png) > 20000, "Preview PNG is unexpectedly small"
+          assert 'id="order-tag"' not in actual.decode()
+          assert "data-ref-visibility" in actual.decode()
+          print("PASS: demo HTML matches current generator; screenshot and SVG show six tags")
+          PY
+
+      - name: Build standalone skill candidate
+        run: python3 digitrail/scripts/package_skill.py --output artifacts/digitrail-skill.zip
+
+      - name: Upload test artefacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: digitrail-ai-distribution-candidate
+          path: |
+            artifacts/digitrail-skill.zip
+            artifacts/sample.html
+            artifacts/sample.json
+            artifacts/sample-tags.png
+            artifacts/sample-tags.svg
+          retention-days: 7
