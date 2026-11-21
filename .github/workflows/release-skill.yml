@@ -1,34 +1,59 @@
-name: Attach installable skill to stable release
+name: Publish first stable release and installable skill
 
+# Runs only after the production (main) regression workflow passes.
+# The release tag and ZIP are created in one job so a GITHUB_TOKEN-created
+# release does not depend on triggering a second workflow.
 on:
-  release:
-    types: [published]
+  workflow_run:
+    workflows: ["AI distribution validation"]
+    branches: [main]
+    types: [completed]
 
 permissions:
   contents: write
 
+concurrency:
+  group: digitrail-first-stable-release
+  cancel-in-progress: false
+
 jobs:
-  package:
-    if: github.repository == '0biguan/diGITrail' && !github.event.release.prerelease
-    runs-on: ubuntu-latest
+  publish:
+    if: >-
+      github.repository == '0biguan/diGITrail' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - name: Checkout published release tag
+      - name: Checkout the successfully validated main commit
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Verify stable semantic version and tag ancestry on main
+      - name: Verify main ancestry and skip if release already exists
+        id: gate
         env:
-          TAG: ${{ github.event.release.tag_name }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+          TAG: v1.0.0
         run: |
-          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
           git fetch --no-tags origin main
-          git merge-base --is-ancestor HEAD origin/main
+          git merge-base --is-ancestor "$SHA" origin/main
+          test "$(git rev-parse HEAD)" = "$SHA"
+          if gh release view "$TAG" --repo "$GH_REPO" >/dev/null 2>&1; then
+            echo "already_published=true" >> "$GITHUB_OUTPUT"
+            echo "Stable release already exists; no changes."
+          else
+            echo "already_published=false" >> "$GITHUB_OUTPUT"
+          fi
 
-      - name: Verify and package the original skill
+      - name: Package exact stable source and verify ZIP
+        if: steps.gate.outputs.already_published == 'false'
         run: |
           python3 -m unittest discover -s tests -v
           python3 scripts/package_skill.py --output dist/digitrail-skill.zip
@@ -36,7 +61,7 @@ jobs:
           from pathlib import Path
           from zipfile import ZipFile
           path = Path("dist/digitrail-skill.zip")
-          assert path.stat().st_size > 1000
+          assert path.is_file() and path.stat().st_size > 1000
           expected = {
               "digitrail/SKILL.md",
               "digitrail/LICENSE",
@@ -47,12 +72,28 @@ jobs:
           with ZipFile(path) as skill:
               assert set(skill.namelist()) == expected
               assert skill.testzip() is None
-          print("PASS: installable original skill archive")
+          print("PASS: versioned skill archive")
           PY
 
-      - name: Attach ZIP to the published GitHub Release
+      - name: Publish v1.0.0 with installable ZIP in one atomic release operation
+        if: steps.gate.outputs.already_published == 'false'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
-          TAG: ${{ github.event.release.tag_name }}
-        run: gh release upload "$TAG" dist/digitrail-skill.zip --clobber
+          SHA: ${{ github.event.workflow_run.head_sha }}
+          TAG: v1.0.0
+        run: |
+          cat > /tmp/digitrail-release-notes.md <<'EOF'
+          First stable release of diGITrail.
+
+          - Read-only Python CLI to render Git commit ancestry as a standalone interactive HTML graph.
+          - Git branches, forks, merges, lightweight/annotated tags and tagged commits in Structure view.
+          - Search, branch highlighting, chronology reversal, All/Branches/Tags filters, details and SVG export.
+          - Three documented distribution modes: CLI, AI zero-install and an installable skill, with clear ChatGPT Work compatibility limits.
+          - Fully fictional online demo at https://0biguan.github.io/diGITrail/ .
+
+          Download **digitrail-skill.zip** below for the installable ChatGPT Work skill. GitHub also provides Source code (zip / tar.gz) archives for the Python CLI.
+
+          Licence: PolyForm Noncommercial 1.0.0. Commercial permissions are not granted by this licence.
+          EOF
+          gh release create "$TAG" dist/digitrail-skill.zip             --repo "$GH_REPO"             --target "$SHA"             --title "diGITrail v1.0.0"             --notes-file /tmp/digitrail-release-notes.md
