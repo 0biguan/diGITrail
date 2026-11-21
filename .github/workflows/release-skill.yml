@@ -1,0 +1,58 @@
+name: Attach installable skill to stable release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    if: github.repository == '0biguan/diGITrail' && !github.event.release.prerelease
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout published release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify stable semantic version and tag ancestry on main
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          git fetch --no-tags origin main
+          git merge-base --is-ancestor HEAD origin/main
+
+      - name: Verify and package the original skill
+        run: |
+          python3 -m unittest discover -s tests -v
+          python3 scripts/package_skill.py --output dist/digitrail-skill.zip
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          path = Path("dist/digitrail-skill.zip")
+          assert path.stat().st_size > 1000
+          expected = {
+              "digitrail/SKILL.md",
+              "digitrail/LICENSE",
+              "digitrail/scripts/generate_git_graph.py",
+              "digitrail/assets/template.html",
+              "digitrail/references/data-format.md",
+          }
+          with ZipFile(path) as skill:
+              assert set(skill.namelist()) == expected
+              assert skill.testzip() is None
+          print("PASS: installable original skill archive")
+          PY
+
+      - name: Attach ZIP to the published GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$TAG" dist/digitrail-skill.zip --clobber

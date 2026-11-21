@@ -1,14 +1,13 @@
-# diGITrail for AI: three usage modes (experimental)
+# diGITrail for AI: three usage modes
 
-This document applies to the isolated AI-distribution experiment. The original
-command-line renderer remains unchanged.
+This document describes three distribution modes and records the original AI-distribution tests. Production source examples refer to `main`; observations from October 2026 are historical and apply only to the environments actually tested. The original command-line renderer is shared by all modes.
 
 ## 1. Zero-installation AI (ChatGPT Work: successful user trial)
 
 Provide the diGITrail source URL and a target repository URL:
 
 > Read the real diGITrail SKILL.md and renderer at
-> https://github.com/0biguan/diGITrail/tree/feature/ai-distribution
+> https://github.com/0biguan/diGITrail/tree/main
 > and generate its original self-contained HTML graph for
 > https://github.com/0biguan/diGITrail-sample with activity from
 > 1 October 2026 (00:00 UTC) through the time of this request.
@@ -51,7 +50,7 @@ workspace controls. The user installs nothing on their own computer.
 In a new **Work** conversation, ask:
 
 > Use the original diGITrail from
-> https://github.com/0biguan/diGITrail/tree/feature/ai-distribution
+> https://github.com/0biguan/diGITrail/tree/main
 > to generate the standalone interactive HTML history for
 > https://github.com/0biguan/diGITrail-sample with activity from
 > 1 October 2026 (00:00 UTC) through the time of this request.
@@ -148,4 +147,4 @@ library are needed for its renderer.
 - Use a synthetic test repository and test without writing any Git refs.
 - Do not promise universal zero-install compatibility before fresh-session
   tests establish the specific supported ChatGPT surfaces.
-- Do not merge this experiment into main until regression results are reviewed.
+- Before promoting further changes to `main`, review regression results and limit AI compatibility claims to tested environments.

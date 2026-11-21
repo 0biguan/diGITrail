@@ -2,7 +2,7 @@ name: Publish fictional interactive demo
 
 on:
   push:
-    branches: [feature/ai-distribution]
+    branches: [main]
     paths:
       - .github/workflows/deploy-demo-pages.yml
       - examples/demo.html
@@ -20,11 +20,11 @@ concurrency:
 
 jobs:
   build:
-    if: github.repository == '0biguan/diGITrail' && github.ref == 'refs/heads/feature/ai-distribution'
+    if: github.repository == '0biguan/diGITrail' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Checkout experimental source (read-only)
+      - name: Checkout stable source (read-only)
         uses: actions/checkout@v4
         with:
           persist-credentials: false
@@ -60,7 +60,7 @@ jobs:
           path: _site
 
   deploy:
-    if: github.repository == '0biguan/diGITrail' && github.ref == 'refs/heads/feature/ai-distribution'
+    if: github.repository == '0biguan/diGITrail' && github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 10

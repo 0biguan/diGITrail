@@ -1,13 +1,6 @@
 name: Refresh fictional demo previews
 
 on:
-  push:
-    branches: [feature/ai-distribution]
-    paths:
-      - .github/workflows/refresh-demo.yml
-      - examples/demo.json
-      - assets/template.html
-      - scripts/generate_git_graph.py
   workflow_dispatch:
 
 permissions:
@@ -15,14 +8,14 @@ permissions:
 
 jobs:
   regenerate:
-    if: github.repository == '0biguan/diGITrail' && github.ref == 'refs/heads/feature/ai-distribution'
+    if: github.repository == '0biguan/diGITrail' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Checkout experimental branch for generated demo assets
+      - name: Checkout main for generated demo assets
         uses: actions/checkout@v4
         with:
-          ref: feature/ai-distribution
+          ref: main
           persist-credentials: true
 
       - name: Install Chromium for accurate browser preview
@@ -85,14 +78,14 @@ jobs:
                   browser.close()
           PY
 
-      - name: Update only generated assets in experimental branch
+      - name: Update only generated assets in main
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -- examples/demo.html docs/images/digitrail-preview.png docs/images/digitrail-preview.svg
           if ! git diff --cached --quiet; then
             git commit -m "docs: refresh demo HTML and tag-enabled preview assets"
-            git push origin HEAD:refs/heads/feature/ai-distribution
+            git push origin HEAD:refs/heads/main
           else
             echo "All generated previews are already current."
           fi

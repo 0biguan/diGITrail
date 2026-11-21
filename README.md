@@ -6,7 +6,7 @@ diGITrail turns real Git commit ancestry into a **single, self-contained HTML re
 
 ![Current diGITrail interface showing the fictional demo's commits, branches, golden Git tags and All/Branches/Tags controls](docs/images/digitrail-preview.png)
 
-*Real output from the bundled renderer using the [fully fictional demo dataset](examples/demo.json): 23 commits, 6 branch references, 3 merge commits and 6 tags. The sample does not contain anyone's repository history. [Open the interactive demo](https://0biguan.github.io/diGITrail/) · [View the vector export](docs/images/digitrail-preview.svg).*
+*Real output from the bundled renderer using the [fully fictional demo dataset](examples/demo.json): 23 commits, 6 branch references, 3 merge commits and 6 tags. The sample does not contain anyone's repository history. [Open the interactive demo](https://0biguan.github.io/diGITrail/) *(Ctrl+click to open in a new tab)* · [View the vector export](docs/images/digitrail-preview.svg).*
 
 ## Choose how to use diGITrail
 
@@ -50,7 +50,7 @@ Opening a normal ChatGPT conversation and simply pasting the URL **does not** au
 
 > Use the **original diGITrail** from:
 >
-> https://github.com/0biguan/diGITrail/tree/feature/ai-distribution
+> https://github.com/0biguan/diGITrail/tree/main
 >
 > Generate a standalone interactive HTML report for:
 >
@@ -78,7 +78,7 @@ Use this option when an eligible assistant can **install diGITrail's packaged sk
 
 ### Obtain the skill ZIP
 
-**No development setup:** open the [most recent successful experimental GitHub Actions run](https://github.com/0biguan/diGITrail/actions/workflows/ai-distribution-validation.yml), choose a run from `feature/ai-distribution`, download its `digitrail-ai-distribution-candidate` artifact, **extract the outer artifact ZIP**, and locate **`digitrail-skill.zip`**. Artifacts have limited retention and are not permanent releases.
+**No development setup:** download [`digitrail-skill.zip` from the latest stable GitHub Release](https://github.com/0biguan/diGITrail/releases/latest/download/digitrail-skill.zip). The ZIP is attached automatically by `.github/workflows/release-skill.yml` when a stable release is published. **Before the first release**, build it from the repository as shown below. GitHub Actions test artifacts are temporary, not the official distribution.
 
 **Alternatively**, in a downloaded diGITrail source checkout (Python 3.9+):
 
@@ -89,7 +89,7 @@ python3 scripts/package_skill.py --output dist/digitrail-skill.zip
 ### Install and try it
 
 1. Where supported in ChatGPT, navigate to **Plugins → Skills → Create → Upload from your computer**. The wording or availability may vary by account/workspace.
-2. Upload **`digitrail-skill.zip`** (not the outer GitHub Actions artifact ZIP). Follow the platform's security-review prompts; an upload can be refused.
+2. Upload **`digitrail-skill.zip`**. Follow the platform's security-review prompts; an upload can be refused.
 3. Confirm the installed skill is named **`digitrail`**. Start a **new Work session** in which the skill is accessible.
 4. Ask for the report without supplying the diGITrail **source** URL:
 
@@ -109,10 +109,10 @@ Use this option for direct control, offline generation from a repository already
 - A local Git checkout with **complete history** (not a shallow checkout), or a valid connector JSON file.
 - **No external Python packages** for the generator; Chromium/Playwright are only for optional browser tests and screenshots.
 
-Download the [experimental source ZIP](https://github.com/0biguan/diGITrail/archive/refs/heads/feature/ai-distribution.zip) or clone the experimental branch:
+Download the [stable source ZIP from `main`](https://github.com/0biguan/diGITrail/archive/refs/heads/main.zip) or clone the repository:
 
 ```bash
-git clone --branch feature/ai-distribution https://github.com/0biguan/diGITrail.git
+git clone https://github.com/0biguan/diGITrail.git
 cd diGITrail
 ```
 
@@ -156,7 +156,7 @@ Read [the connector input schema](references/data-format.md) or run `python3 scr
 
 ## Interactive demo and visual features
 
-[**Open the live, interactive demo**](https://0biguan.github.io/diGITrail/) in your browser (served by GitHub Pages, with JavaScript enabled). Alternatively, download the source ZIP and open `examples/demo.html` locally. If the hosted page is unavailable, the repository owner must first enable **Settings → Pages → Source: GitHub Actions**; deployment is provided by `.github/workflows/deploy-demo-pages.yml`. There is no installation step for viewing the demo.
+[**Open the live, interactive demo**](https://0biguan.github.io/diGITrail/) *(Ctrl+click to open in a new tab)*. GitHub Pages serves the interactive application in your browser with JavaScript enabled; no download or installation is required. Alternatively, download the source and open `examples/demo.html` locally. After publication the demo is deployed from `main` through `.github/workflows/deploy-demo-pages.yml`.
 
 It uses fixed, **entirely fictional** commits from January 2000; six fictional tags illustrate lightweight, annotated and shared-commit tags. Try the **All / Branches / Tags** visibility filter, **Structure / All commits**, time reversal, searching for `keyboard` or `v1.0.0`, selecting a commit, and **Export SVG**.
 
@@ -196,6 +196,10 @@ Contributions, issues and documentation improvements are welcome; see [CONTRIBUT
 ```bash
 python3 -m unittest discover -s tests -v
 ```
+
+## Releases and downloads
+
+The [Releases page](https://github.com/0biguan/diGITrail/releases) provides versioned distributions. For each published stable `vMAJOR.MINOR.PATCH` release, GitHub Actions checks the release tag belongs to `main`, runs package tests and attaches `digitrail-skill.zip`. GitHub also supplies source archives for each tag. The skill contains the same original renderer, HTML template and licence as the repository. See [CI validation](https://github.com/0biguan/diGITrail/actions/workflows/ai-distribution-validation.yml) for test evidence; AI environment support varies.
 
 ## Licence and commercial permissions
 

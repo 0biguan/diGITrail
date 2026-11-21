@@ -203,7 +203,7 @@ The new skill ZIP and new B+D HTML have not been independently retested
 inside a new user ChatGPT Work/installed-skill conversation. Earlier
 Work/installed-skill results certify the previous tag-free renderer.
 Ordinary Chat skill visibility remains unavailable in the tested session.
-No merge into stable main has occurred.
+At the time of this certification run, no merge into stable `main` had occurred.
 
 ## Manual acceptance tests still required
 
@@ -223,6 +223,7 @@ No merge into stable main has occurred.
 
 ## Promotion gate
 
-Keep the draft PR unmerged until the hosted CI passes, code changes are
-reviewed and the remaining manual capability tests are labelled accurately.
-No undocumented assertion of universal ChatGPT compatibility.
+For each release, require successful hosted CI, reviewed code changes and accurate
+labels for manual AI capability tests. Verify the release tag belongs to `main`
+and record the post-merge validation run. These October 2026 results are a
+historical pre-release record, not a claim of universal ChatGPT compatibility.
