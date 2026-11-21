@@ -9,7 +9,7 @@ permissions:
 jobs:
   regenerate:
     if: github.repository == '0biguan/diGITrail' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - name: Checkout main for generated demo assets
